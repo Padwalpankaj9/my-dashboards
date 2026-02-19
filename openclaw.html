@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Architecture</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0f172a; color: #e2e8f0; font-family: system-ui, sans-serif; }
+    .card { background: #1e293b; border-radius: 12px; padding: 1rem; }
+    .card-inner { background: #0f172a; border-radius: 8px; padding: 0.75rem; }
+    .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-green { background: #06543622; color: #4ade80; }
+    .badge-yellow { background: #78350f44; color: #fbbf24; }
+    .badge-red { background: #7f1d1d44; color: #f87171; }
+    .badge-blue { background: #1e3a5f; color: #60a5fa; }
+    .badge-purple { background: #3b0764; color: #c084fc; }
+    .tab-btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: #3b82f6; color: white; }
+    .tab-btn:not(.active) { background: #334155; color: #94a3b8; }
+    .conn-line { border-left: 2px dashed #475569; margin-left: 1.25rem; padding-left: 1rem; }
+    .node { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; }
+    .node-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .expand-btn { cursor: pointer; user-select: none; }
+    .expand-btn:hover { color: #60a5fa; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { text-align: left; padding: 0.5rem; color: #94a3b8; border-bottom: 1px solid #334155; font-weight: 500; }
+    td { padding: 0.5rem; border-bottom: 1px solid #1e293b22; }
+    .section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 0.5rem; font-weight: 600; }
+    .alert { background: #78350f; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 0.6rem 0.8rem; font-size: 0.8rem; margin-bottom: 0.5rem; }
+    .secret { background: #334155; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.75rem; }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-6 max-w-5xl mx-auto">
+
+  <!-- Password Gate -->
+  <div id="lock-screen" class="flex flex-col items-center justify-center min-h-screen">
+    <div class="card text-center" style="max-width:320px;width:100%">
+      <h2 class="text-lg font-bold mb-4">Enter Password</h2>
+      <input id="pw-input" type="password" placeholder="Password"
+        class="w-full px-3 py-2 rounded-lg bg-slate-700 text-white border border-slate-600 focus:border-blue-500 focus:outline-none mb-3"
+        onkeydown="if(event.key==='Enter')checkPw()">
+      <button onclick="checkPw()" class="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium">Unlock</button>
+      <p id="pw-error" class="text-red-400 text-xs mt-2 hidden">Wrong password</p>
+    </div>
+  </div>
+
+  <div id="dashboard" class="hidden">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-xl font-bold">OpenClaw Architecture</h1>
+    <span class="badge badge-green" id="status-badge">LIVE</span>
+  </div>
+
+  <!-- Live Status Bar -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="card text-center">
+      <div class="text-xs text-slate-400">Gateway</div>
+      <div class="text-sm font-bold text-green-400">Active</div>
+      <div class="text-xs text-slate-500">2d uptime</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-xs text-slate-400">Memory</div>
+      <div class="text-sm font-bold text-white">410 MB</div>
+      <div class="text-xs text-slate-500">of 2.3 GB max</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-xs text-slate-400">Skills</div>
+      <div class="text-sm font-bold text-white">18/49</div>
+      <div class="text-xs text-slate-500">ready</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-xs text-slate-400">Disk</div>
+      <div class="text-sm font-bold text-white">38%</div>
+      <div class="text-xs text-slate-500">14 GB / 38 GB</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-4 overflow-x-auto pb-1">
+    <button class="tab-btn active" onclick="showTab('network')">Network</button>
+    <button class="tab-btn" onclick="showTab('internals')">Internals</button>
+    <button class="tab-btn" onclick="showTab('skills')">Skills</button>
+    <button class="tab-btn" onclick="showTab('cron')">Cron Jobs</button>
+    <button class="tab-btn" onclick="showTab('secrets')">Secrets</button>
+    <button class="tab-btn" onclick="showTab('files')">File Map</button>
+  </div>
+
+  <!-- ========== TAB: NETWORK ========== -->
+  <div id="tab-network" class="card">
+    <div class="section-title">How Your Mac Connects to the VPS</div>
+
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-3">Connection Chain</div>
+
+      <!-- Mac -->
+      <div class="node">
+        <div class="node-dot bg-blue-400"></div>
+        <div>
+          <div class="text-sm font-medium">MacBook Pro</div>
+          <div class="text-xs text-slate-400">100.89.181.100 (Tailscale)</div>
+        </div>
+      </div>
+
+      <div class="conn-line py-1">
+        <div class="text-xs text-slate-500">Tailscale VPN tunnel (WireGuard, encrypted)</div>
+        <div class="text-xs text-slate-600">Direct connection: port 41641</div>
+      </div>
+
+      <!-- VPS -->
+      <div class="node">
+        <div class="node-dot bg-green-400"></div>
+        <div>
+          <div class="text-sm font-medium">Hetzner VPS (openclaw-agent)</div>
+          <div class="text-xs text-slate-400">100.67.50.18 (Tailscale) / 49.13.198.234 (public)</div>
+        </div>
+      </div>
+
+      <div class="conn-line py-1">
+        <div class="text-xs text-slate-500">OpenClaw Gateway (port 18789)</div>
+      </div>
+
+      <!-- Telegram -->
+      <div class="node">
+        <div class="node-dot bg-purple-400"></div>
+        <div>
+          <div class="text-sm font-medium">Telegram Bot API</div>
+          <div class="text-xs text-slate-400">@pankaj_openclaw_bot (ID: 8516762813)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How SSH Works -->
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-2">SSH Access</div>
+      <div class="text-xs text-slate-300 mb-2">
+        Your Mac connects to the VPS via SSH over the Tailscale tunnel. Password auth is disabled. Key-only.
+      </div>
+      <div class="bg-slate-800 rounded p-2 font-mono text-xs text-green-300">
+        ssh root@100.67.50.18
+      </div>
+      <div class="text-xs text-slate-500 mt-1">
+        Works because both Mac and VPS are on the same Tailscale network (padwalpankaj9@).
+      </div>
+    </div>
+
+    <!-- What is Tailscale -->
+    <div class="card-inner">
+      <div class="text-sm font-medium text-blue-300 mb-2">What is Tailscale?</div>
+      <div class="text-xs text-slate-300 leading-relaxed">
+        Tailscale creates a private network between your devices using WireGuard encryption.
+        Each device gets a stable 100.x.x.x IP. Your Mac, VPS, and iPhone are all on this network.
+        It's like having all your devices on the same WiFi, even when they're on different continents.
+        Traffic goes directly between devices (peer-to-peer), not through Tailscale's servers.
+      </div>
+      <div class="mt-2">
+        <table>
+          <thead><tr><th>Device</th><th>Tailscale IP</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="text-white">MacBook Pro</td><td class="font-mono text-xs">100.89.181.100</td><td><span class="badge badge-green">active</span></td></tr>
+            <tr><td class="text-white">openclaw-agent</td><td class="font-mono text-xs">100.67.50.18</td><td><span class="badge badge-green">active</span></td></tr>
+            <tr><td class="text-white">iPhone 13</td><td class="font-mono text-xs">100.88.52.100</td><td><span class="badge badge-red">offline 51d</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB: INTERNALS ========== -->
+  <div id="tab-internals" class="card hidden">
+    <div class="section-title">What's Running Inside the VPS</div>
+
+    <!-- Architecture layers -->
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-3">System Layers (bottom up)</div>
+
+      <!-- Layer: OS -->
+      <div class="mb-3 border-l-2 border-slate-600 pl-3">
+        <div class="text-xs font-bold text-slate-300">Layer 1: Operating System</div>
+        <div class="text-xs text-slate-400">Hetzner CX23: 2 vCPU, 4 GB RAM, 40 GB disk, Nuremberg DC</div>
+        <div class="text-xs text-slate-400">2 GB swap, swappiness=10</div>
+      </div>
+
+      <!-- Layer: System Services -->
+      <div class="mb-3 border-l-2 border-blue-600 pl-3">
+        <div class="text-xs font-bold text-blue-300">Layer 2: System Services</div>
+        <div class="flex flex-wrap gap-1 mt-1">
+          <span class="badge badge-blue">Tailscale VPN</span>
+          <span class="badge badge-blue">SSH (key-only)</span>
+          <span class="badge badge-blue">1Password CLI</span>
+          <span class="badge badge-blue">systemd</span>
+          <span class="badge badge-blue">cron</span>
+        </div>
+      </div>
+
+      <!-- Layer: OpenClaw Gateway -->
+      <div class="mb-3 border-l-2 border-green-600 pl-3">
+        <div class="text-xs font-bold text-green-300">Layer 3: OpenClaw Gateway</div>
+        <div class="text-xs text-slate-400">Node.js process, memory cap 2.3 GB, anti-flap guard</div>
+        <div class="text-xs text-slate-400">Runs as user <span class="font-mono">openclaw</span> (not root)</div>
+        <div class="text-xs text-slate-400">Startup: env-loader fetches secrets from 1Password, then exec gateway</div>
+      </div>
+
+      <!-- Layer: Agent -->
+      <div class="mb-3 border-l-2 border-purple-600 pl-3">
+        <div class="text-xs font-bold text-purple-300">Layer 4: Krish (Agent)</div>
+        <div class="text-xs text-slate-400">LLM: google/gemini-3-flash-preview</div>
+        <div class="text-xs text-slate-400">Identity: SOUL.md, USER.md, TOOLS.md</div>
+        <div class="text-xs text-slate-400">Memory: /workspace/memory/ (auto-growing)</div>
+      </div>
+
+      <!-- Layer: Channels -->
+      <div class="mb-3 border-l-2 border-amber-600 pl-3">
+        <div class="text-xs font-bold text-amber-300">Layer 5: Channels + Skills</div>
+        <div class="text-xs text-slate-400">Telegram bot (primary interface)</div>
+        <div class="text-xs text-slate-400">18 ready skills: coding-agent, gmail, calendar, weather, etc.</div>
+        <div class="text-xs text-slate-400">External tools: gog (Google), mcporter (MCP bridge), claude CLI</div>
+      </div>
+    </div>
+
+    <!-- Startup Sequence -->
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-2">Startup Sequence (what happens on boot)</div>
+      <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside">
+        <li>systemd starts <span class="font-mono text-green-300">openclaw-gateway.service</span></li>
+        <li>ExecStart runs <span class="font-mono text-green-300">openclaw-env-loader.sh</span></li>
+        <li>Env-loader reads SA token from <span class="font-mono">/etc/op/token.env</span></li>
+        <li>Fetches 7 secrets from 1Password via <span class="font-mono">op read</span></li>
+        <li>Exports as env vars (GEMINI_API_KEY, TELEGRAM_BOT_TOKEN, etc.)</li>
+        <li>Execs the gateway process with all secrets in environment</li>
+        <li>Gateway loads config from <span class="font-mono">~/.openclaw/openclaw.json</span></li>
+        <li>Boots agent "main" with SOUL.md + USER.md + TOOLS.md</li>
+        <li>Connects to Telegram bot API, starts listening</li>
+      </ol>
+    </div>
+
+    <!-- Memory & Hardening -->
+    <div class="card-inner">
+      <div class="text-sm font-medium text-blue-300 mb-2">Hardening Measures</div>
+      <table>
+        <thead><tr><th>Measure</th><th>Setting</th></tr></thead>
+        <tbody>
+          <tr><td class="text-white">SSH</td><td>Key-only, no password, no root password login</td></tr>
+          <tr><td class="text-white">Swap</td><td>2 GB, swappiness=10</td></tr>
+          <tr><td class="text-white">Tailscale</td><td>OOMScoreAdjust=-900 (survives OOM kills)</td></tr>
+          <tr><td class="text-white">Memory cap</td><td>MemoryHigh=2 GB, MemoryMax=2.3 GB</td></tr>
+          <tr><td class="text-white">Anti-flap</td><td>5 restarts max per 300 sec</td></tr>
+          <tr><td class="text-white">Node.js heap</td><td>--max-old-space-size=1536 MB</td></tr>
+          <tr><td class="text-white">Memlog</td><td>Every 5 min to /var/log/memlog.txt</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== TAB: SKILLS ========== -->
+  <div id="tab-skills" class="card hidden">
+    <div class="section-title">Installed Skills (18 of 49 ready)</div>
+
+    <table>
+      <thead><tr><th>Skill</th><th>Dependency</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="text-white">healthcheck</td><td class="text-slate-400">built-in</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">skill-creator</td><td class="text-slate-400">built-in</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">tmux</td><td class="text-slate-400">pre-installed</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">weather</td><td class="text-slate-400">built-in</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">github</td><td class="font-mono text-xs">gh CLI</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">video-frames</td><td class="font-mono text-xs">ffmpeg</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">gog</td><td class="font-mono text-xs">gog v0.9.0</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">session-logs</td><td class="font-mono text-xs">jq + rg</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">summarize</td><td class="font-mono text-xs">@steipete/summarize</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">coding-agent</td><td class="font-mono text-xs">claude v2.1.37</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">gemini</td><td class="font-mono text-xs">gemini CLI</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">blogwatcher</td><td class="font-mono text-xs">blogwatcher</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">nano-banana-pro</td><td class="font-mono text-xs">uv + Gemini API</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">himalaya</td><td class="font-mono text-xs">himalaya v1.1.0</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">obsidian</td><td class="font-mono text-xs">obsidian-cli</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">mcporter</td><td class="font-mono text-xs">mcporter</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">openai-whisper</td><td class="font-mono text-xs">whisper (uv)</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-white">+1 unknown</td><td class="text-slate-400">-</td><td><span class="badge badge-green">ready</span></td></tr>
+        <tr><td class="text-slate-500">31 other skills</td><td class="text-slate-500">missing deps</td><td><span class="badge badge-yellow">not ready</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== TAB: CRON JOBS ========== -->
+  <div id="tab-cron" class="card hidden">
+    <div class="section-title">Scheduled Jobs (cron)</div>
+    <div class="text-xs text-slate-400 mb-3">VPS runs on UTC. Times shown in ET (your timezone).</div>
+
+    <table>
+      <thead><tr><th>Job</th><th>Schedule (ET)</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td class="text-white">Morning Briefing</td><td>7:00 AM daily</td><td class="text-slate-400">Krish sends you daily briefing on Telegram</td></tr>
+        <tr><td class="text-white">Evening Review</td><td>8:30 PM daily</td><td class="text-slate-400">End-of-day summary on Telegram</td></tr>
+        <tr><td class="text-white">Weekly Review</td><td>Sun 5:30 PM</td><td class="text-slate-400">Weekly summary on Telegram</td></tr>
+        <tr><td class="text-white">VPS Doctor</td><td>8:00 AM daily</td><td class="text-slate-400">Health check + Telegram alert if issues</td></tr>
+        <tr><td class="text-white">Brain Sync</td><td>Every 4 hours</td><td class="text-slate-400">Push workspace to GitHub</td></tr>
+        <tr><td class="text-white">KPI Check</td><td>9 AM + 2 PM, 1st-7th</td><td class="text-slate-400">Monthly KPI automation</td></tr>
+        <tr><td class="text-white">AI Scout</td><td>Sun 9:00 AM</td><td class="text-slate-400">Weekly AI news scan</td></tr>
+        <tr><td class="text-white">Blog Watcher</td><td>8:00 AM daily</td><td class="text-slate-400">Check blog feeds for new posts</td></tr>
+        <tr><td class="text-white">Granola Refresh</td><td>Every 5 hours</td><td class="text-slate-400">Refresh Granola OAuth token (6h expiry)</td></tr>
+        <tr><td class="text-white">OpenClaw Docs</td><td>5:00 PM daily</td><td class="text-slate-400">Check for OpenClaw updates, write summary</td></tr>
+        <tr><td class="text-white">Memlog</td><td>Every 5 min</td><td class="text-slate-400">Log RAM/swap usage</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== TAB: SECRETS ========== -->
+  <div id="tab-secrets" class="card hidden">
+    <div class="section-title">Credential Management</div>
+
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-2">How Secrets Flow</div>
+      <div class="text-xs text-slate-300 leading-relaxed mb-2">
+        No secrets are stored in plain text on disk. All sensitive credentials live in
+        <span class="text-amber-300 font-medium">1Password</span> (Agent-Secrets vault).
+        At startup, the env-loader script fetches each secret and injects it into the
+        gateway process environment.
+      </div>
+
+      <div class="space-y-1">
+        <div class="node">
+          <div class="node-dot bg-amber-400"></div>
+          <div class="text-xs">1Password (Agent-Secrets vault, 11 items)</div>
+        </div>
+        <div class="conn-line py-1">
+          <div class="text-xs text-slate-500">SA token at /etc/op/token.env</div>
+          <div class="text-xs text-slate-500">op read at startup</div>
+        </div>
+        <div class="node">
+          <div class="node-dot bg-green-400"></div>
+          <div class="text-xs">env-loader.sh (exports as env vars)</div>
+        </div>
+        <div class="conn-line py-1">
+          <div class="text-xs text-slate-500">exec gateway with env</div>
+        </div>
+        <div class="node">
+          <div class="node-dot bg-blue-400"></div>
+          <div class="text-xs">Gateway process (secrets in memory only)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-inner">
+      <div class="text-sm font-medium text-blue-300 mb-2">Secrets Inventory</div>
+      <table>
+        <thead><tr><th>Secret</th><th>Used By</th></tr></thead>
+        <tbody>
+          <tr><td class="text-white">Gemini API Key</td><td class="text-slate-400">LLM (Krish's brain)</td></tr>
+          <tr><td class="text-white">Claude Code OAuth</td><td class="text-slate-400">coding-agent skill</td></tr>
+          <tr><td class="text-white">Telegram Bot Token</td><td class="text-slate-400">Telegram channel</td></tr>
+          <tr><td class="text-white">Gateway Auth Token</td><td class="text-slate-400">Gateway WebSocket auth</td></tr>
+          <tr><td class="text-white">GOG Keyring Password</td><td class="text-slate-400">Google API access (gog CLI)</td></tr>
+          <tr><td class="text-white">Brave API Key</td><td class="text-slate-400">Web search skill</td></tr>
+          <tr><td class="text-white">Google Places API Key</td><td class="text-slate-400">Location/places skill</td></tr>
+          <tr><td class="text-white">Granola Refresh Token</td><td class="text-slate-400">Granola MCP (meetings)</td></tr>
+          <tr><td class="text-white">Google OAuth (Client)</td><td class="text-slate-400">gog OAuth flow</td></tr>
+          <tr><td class="text-white">Google Account</td><td class="text-slate-400">Throwaway Gmail for bot</td></tr>
+          <tr><td class="text-white">Granola OAuth Client</td><td class="text-slate-400">Granola token refresh</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== TAB: FILE MAP ========== -->
+  <div id="tab-files" class="card hidden">
+    <div class="section-title">Key Files on VPS</div>
+
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-2">/root/.openclaw/ (OpenClaw home)</div>
+      <div class="font-mono text-xs text-slate-300 space-y-0.5">
+        <div><span class="text-amber-300">openclaw.json</span> <span class="text-slate-500">- Main config (bot token, channel settings)</span></div>
+        <div class="ml-2 text-slate-500">workspace/</div>
+        <div class="ml-4"><span class="text-green-300">SOUL.md</span> <span class="text-slate-500">- Agent identity (who Krish is)</span></div>
+        <div class="ml-4"><span class="text-green-300">USER.md</span> <span class="text-slate-500">- About you (Pankaj)</span></div>
+        <div class="ml-4"><span class="text-green-300">TOOLS.md</span> <span class="text-slate-500">- Available tools/env</span></div>
+        <div class="ml-4"><span class="text-green-300">HEARTBEAT.md</span> <span class="text-slate-500">- Periodic tasks</span></div>
+        <div class="ml-4 text-slate-500">memory/ <span>- Agent memory files</span></div>
+        <div class="ml-4 text-slate-500">logs/ <span>- Briefing and doctor logs</span></div>
+        <div class="ml-2 text-slate-500">devices/</div>
+        <div class="ml-4"><span class="text-slate-300">paired.json</span> <span class="text-slate-500">- Approved devices</span></div>
+        <div class="ml-4"><span class="text-slate-300">pending.json</span> <span class="text-slate-500">- Awaiting approval</span></div>
+        <div class="ml-2 text-slate-500">identity/</div>
+        <div class="ml-4"><span class="text-slate-300">device.json</span> <span class="text-slate-500">- Machine ID + keypair</span></div>
+        <div class="ml-2 text-slate-500">agents/main/sessions/</div>
+        <div class="ml-2 text-slate-500">credentials/</div>
+        <div class="ml-2 text-slate-500">cron/jobs.json</div>
+      </div>
+    </div>
+
+    <div class="card-inner mb-4">
+      <div class="text-sm font-medium text-blue-300 mb-2">System Files</div>
+      <div class="font-mono text-xs text-slate-300 space-y-0.5">
+        <div><span class="text-amber-300">/etc/op/token.env</span> <span class="text-slate-500">- 1Password SA token</span></div>
+        <div><span class="text-amber-300">/usr/local/bin/openclaw-env-loader.sh</span> <span class="text-slate-500">- Secret fetcher</span></div>
+        <div><span class="text-slate-300">~/.config/systemd/user/openclaw-gateway.service</span></div>
+        <div class="ml-2"><span class="text-slate-300">override.conf</span> <span class="text-slate-500">- Memory caps</span></div>
+        <div><span class="text-slate-300">~/.config/openclaw/gateway.env</span> <span class="text-slate-500">- Non-secret env</span></div>
+      </div>
+    </div>
+
+    <div class="card-inner">
+      <div class="text-sm font-medium text-blue-300 mb-2">Tool Binaries</div>
+      <div class="font-mono text-xs text-slate-300 space-y-0.5">
+        <div><span class="text-green-300">/usr/local/bin/gog</span> <span class="text-slate-500">- Google API CLI v0.9.0</span></div>
+        <div><span class="text-green-300">/usr/local/bin/claude</span> <span class="text-slate-500">- Claude Code CLI</span></div>
+        <div><span class="text-green-300">/home/openclaw/go/bin/blogwatcher</span></div>
+        <div><span class="text-green-300">/home/openclaw/go/bin/obsidian-cli</span></div>
+        <div><span class="text-green-300">/home/openclaw/.local/bin/gog</span> <span class="text-slate-500">- Compatibility shim</span></div>
+        <div><span class="text-green-300">/home/openclaw/vps-doctor.sh</span> <span class="text-slate-500">- Health check framework</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Known Issues -->
+  <div class="mt-6">
+    <div class="section-title">Known Issues / Warnings</div>
+    <div class="alert">ClawHub marketplace: 7% malicious skills. NEVER use <span class="font-mono">npx clawhub install</span>. Bundled skills only.</div>
+    <div class="alert">Config is strict. Unknown keys in openclaw.json crash the gateway. Always verify keys exist first.</div>
+    <div class="text-xs text-slate-500 mt-2">
+      Remaining TODOs: delete .bak files after soak test, migrate Granola cron to op read, run security audit
+    </div>
+  </div>
+
+  <div class="text-xs text-slate-600 mt-6 text-center">
+    Last updated: Feb 19, 2026 (live data from VPS)
+  </div>
+
+  </div> <!-- close #dashboard -->
+
+<script>
+const PASS_HASH = "7c78eea7a591b0c8a4dad680372e35ca12e11cffdac5c69a39700c8014fbcc82";
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+async function checkPw() {
+  const input = document.getElementById("pw-input").value;
+  const hash = await sha256(input);
+  if (hash === PASS_HASH || sessionStorage.getItem("authed") === "1") {
+    sessionStorage.setItem("authed", "1");
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+  } else {
+    document.getElementById("pw-error").classList.remove("hidden");
+    document.getElementById("pw-input").value = "";
+  }
+}
+if (sessionStorage.getItem("authed") === "1") {
+  document.getElementById("lock-screen").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+}
+
+function showTab(name) {
+  document.querySelectorAll("[id^='tab-']").forEach(el => el.classList.add("hidden"));
+  document.getElementById("tab-" + name).classList.remove("hidden");
+  const btns = document.querySelectorAll(".tab-btn");
+  btns.forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+</script>
+</body>
+</html>
