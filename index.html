@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    body { background: #0f172a; color: #e2e8f0; }
+    .card { background: #1e293b; border-radius: 12px; padding: 1.25rem; }
+    .tab-btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: #3b82f6; color: white; }
+    .tab-btn:not(.active) { background: #334155; color: #94a3b8; }
+    .tab-btn:not(.active):hover { background: #475569; }
+    .alert { background: #78350f; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { text-align: left; padding: 0.6rem; color: #94a3b8; border-bottom: 1px solid #334155; font-weight: 500; }
+    td { padding: 0.6rem; border-bottom: 1px solid #1e293b; }
+    tr:hover td { background: #1e293b; }
+    .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 9999px; font-weight: 500; }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 max-w-4xl mx-auto">
+
+  <h1 class="text-2xl font-bold mb-6">Subscription Tracker</h1>
+
+  <!-- Metrics -->
+  <div class="grid grid-cols-3 gap-3 mb-6">
+    <div class="card text-center">
+      <div class="text-xs text-slate-400 mb-1">2025 Actual</div>
+      <div class="text-xl font-bold text-white">$1,735</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-xs text-slate-400 mb-1">2026 Projected</div>
+      <div class="text-xl font-bold text-white">$3,485</div>
+      <div class="text-xs text-red-400">+101%</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-xs text-slate-400 mb-1">Monthly Avg</div>
+      <div class="text-xl font-bold text-white">$290</div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div id="alerts" class="mb-6"></div>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-4 overflow-x-auto">
+    <button class="tab-btn active" onclick="showTab('trend')">Monthly Trend</button>
+    <button class="tab-btn" onclick="showTab('category')">By Category</button>
+    <button class="tab-btn" onclick="showTab('active')">Active Subs</button>
+    <button class="tab-btn" onclick="showTab('student')">Student Plans</button>
+  </div>
+
+  <!-- Tab: Monthly Trend -->
+  <div id="tab-trend" class="card">
+    <div class="flex gap-2 mb-4">
+      <button class="tab-btn active" id="btn-2025" onclick="switchYear(2025)">2025</button>
+      <button class="tab-btn" id="btn-2026" onclick="switchYear(2026)">2026</button>
+    </div>
+    <canvas id="trendChart" height="200"></canvas>
+  </div>
+
+  <!-- Tab: By Category -->
+  <div id="tab-category" class="card hidden">
+    <canvas id="categoryChart" height="250"></canvas>
+  </div>
+
+  <!-- Tab: Active Subs -->
+  <div id="tab-active" class="card hidden overflow-x-auto">
+    <table id="subsTable"></table>
+  </div>
+
+  <!-- Tab: Student Plans -->
+  <div id="tab-student" class="card hidden">
+    <table id="studentTable"></table>
+    <div class="mt-4 text-sm text-blue-300 card" style="background:#1e3a5f">
+      Student plans saving you ~$73/month ($876/year)
+    </div>
+  </div>
+
+<script>
+// --- Data ---
+const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const monthly = {
+  2025: [59, 293, 59.99, 59.99, 59.99, 59.99, 166.40, 159.99, 67.99, 87.99, 286.99, 373.30],
+  2026: [159.99, 397.99, 163.99, 163.99, 163.99, 163.99, 163.99, 163.99, 163.99, 163.99, 362.99, 1252.35]
+};
+
+const categories = [
+  { name: "AI Tools", amount: 1440 },
+  { name: "Credit Cards", amount: 996 },
+  { name: "Health", amount: 667 },
+  { name: "Tax", amount: 138 },
+  { name: "Productivity", amount: 96 },
+  { name: "Telecom", amount: 48 },
+  { name: "Infrastructure", amount: 44 },
+  { name: "Social", amount: 44.36 },
+  { name: "Storage", amount: 11.88 },
+];
+
+const activeSubs = [
+  { name: "Anthropic Claude", type: "AI", cycle: "Monthly", monthly: 100, renewal: "Monthly (3rd)" },
+  { name: "AMEX Platinum", type: "Credit Card", cycle: "Annual", monthly: 74.67, renewal: "Annual" },
+  { name: "Gym (Pankaj)", type: "Health", cycle: "Monthly", monthly: 26, renewal: "Monthly" },
+  { name: "OpenAI ChatGPT Plus", type: "AI", cycle: "Monthly", monthly: 20, renewal: "Monthly" },
+  { name: "WHOOP", type: "Health", cycle: "Annual", monthly: 16.58, renewal: "Nov 2026" },
+  { name: "Gym (Utkarsha)", type: "Health", cycle: "Monthly", monthly: 13, renewal: "Monthly" },
+  { name: "TurboTax", type: "Tax", cycle: "Annual", monthly: 11.50, renewal: "Feb" },
+  { name: "Chase Sapphire", type: "Credit Card", cycle: "Annual", monthly: 8.33, renewal: "Annual" },
+  { name: "Wispr Flow", type: "Productivity", cycle: "Annual", monthly: 8.00, renewal: "Feb 2026" },
+  { name: "Hetzner VPS", type: "Infrastructure", cycle: "Monthly", monthly: 4.00, renewal: "Monthly (5th)" },
+  { name: "Airtel IR Pack", type: "Telecom", cycle: "Annual", monthly: 4.00, renewal: "Dec 2026" },
+  { name: "X Premium", type: "Social", cycle: "Annual", monthly: 3.70, renewal: "Dec 2026" },
+  { name: "Apple iCloud+", type: "Storage", cycle: "Monthly", monthly: 0.99, renewal: "Monthly (5th)" },
+];
+
+const studentPlans = [
+  { name: "Cursor Pro", normal: "$20/mo", status: "Free (1 yr)", expiry: "Feb 2027", action: "Cancel before auto-charge" },
+  { name: "1Password", normal: "$36/yr", status: "Free (1 yr)", expiry: "Feb 2027", action: "Renew via GitHub Student Pack" },
+  { name: "GitHub Copilot", normal: "$10/mo", status: "Free", expiry: "~Feb 2027", action: "Renewable while student" },
+  { name: "Google Gemini", normal: "$20/mo", status: "Free", expiry: "-", action: "No action needed" },
+  { name: "Perplexity AI", normal: "$20/mo", status: "Free", expiry: "Aug 2026", action: "Cancel before auto-charge" },
+];
+
+// --- Alerts ---
+function renderAlerts() {
+  const today = new Date(2026, 1, 19);
+  const cutoff = new Date(today);
+  cutoff.setMonth(cutoff.getMonth() + 6);
+  const el = document.getElementById("alerts");
+  const monthMap = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  studentPlans.forEach(p => {
+    const raw = p.expiry.replace("~", "").trim();
+    if (raw === "-") return;
+    const parts = raw.split(" ");
+    if (parts.length !== 2) return;
+    const expiry = new Date(parseInt(parts[1]), monthMap[parts[0]], 1);
+    if (expiry >= today && expiry <= cutoff) {
+      el.innerHTML += `<div class="alert">&#9888; ${p.name} expires ${p.expiry} &mdash; ${p.action}</div>`;
+    }
+  });
+}
+renderAlerts();
+
+// --- Charts ---
+const chartColors = { bar: "#3b82f6", barHover: "#60a5fa", category: ["#3b82f6","#f59e0b","#10b981","#ef4444","#8b5cf6","#ec4899","#06b6d4","#f97316","#6366f1"] };
+
+let trendChart = new Chart(document.getElementById("trendChart"), {
+  type: "bar",
+  data: {
+    labels: months,
+    datasets: [{ data: monthly[2025], backgroundColor: chartColors.bar, borderRadius: 6, hoverBackgroundColor: chartColors.barHover }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `$${ctx.raw.toFixed(0)}` } } },
+    scales: { y: { ticks: { color: "#94a3b8", callback: v => `$${v}` }, grid: { color: "#334155" } }, x: { ticks: { color: "#94a3b8" }, grid: { display: false } } }
+  }
+});
+
+new Chart(document.getElementById("categoryChart"), {
+  type: "bar",
+  data: {
+    labels: categories.map(c => c.name),
+    datasets: [{ data: categories.map(c => c.amount), backgroundColor: chartColors.category, borderRadius: 6 }]
+  },
+  options: {
+    indexAxis: "y",
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `$${ctx.raw.toFixed(0)}/yr` } } },
+    scales: { x: { ticks: { color: "#94a3b8", callback: v => `$${v}` }, grid: { color: "#334155" } }, y: { ticks: { color: "#e2e8f0" }, grid: { display: false } } }
+  }
+});
+
+// --- Tables ---
+function renderSubsTable() {
+  const typeColors = { AI: "#3b82f6", Health: "#10b981", "Credit Card": "#f59e0b", Tax: "#ef4444", Productivity: "#8b5cf6", Infrastructure: "#06b6d4", Social: "#ec4899", Telecom: "#f97316", Storage: "#6366f1" };
+  let html = `<thead><tr><th>Name</th><th>Type</th><th>$/Month</th><th>Renewal</th></tr></thead><tbody>`;
+  activeSubs.forEach(s => {
+    const color = typeColors[s.type] || "#94a3b8";
+    html += `<tr>
+      <td class="font-medium text-white">${s.name}</td>
+      <td><span class="badge" style="background:${color}22;color:${color}">${s.type}</span></td>
+      <td>$${s.monthly.toFixed(2)}</td>
+      <td class="text-slate-400">${s.renewal}</td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  document.getElementById("subsTable").innerHTML = html;
+}
+renderSubsTable();
+
+function renderStudentTable() {
+  let html = `<thead><tr><th>Name</th><th>Normal</th><th>Expiry</th><th>Action</th></tr></thead><tbody>`;
+  studentPlans.forEach(p => {
+    html += `<tr>
+      <td class="font-medium text-white">${p.name}</td>
+      <td class="text-slate-400">${p.normal}</td>
+      <td>${p.expiry}</td>
+      <td class="text-slate-400">${p.action}</td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  document.getElementById("studentTable").innerHTML = html;
+}
+renderStudentTable();
+
+// --- Tab switching ---
+function showTab(name) {
+  document.querySelectorAll("[id^='tab-']").forEach(el => el.classList.add("hidden"));
+  document.getElementById("tab-" + name).classList.remove("hidden");
+  const btns = document.querySelectorAll(".tab-btn:not(#btn-2025):not(#btn-2026)");
+  btns.forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+
+function switchYear(year) {
+  trendChart.data.datasets[0].data = monthly[year];
+  trendChart.update();
+  document.getElementById("btn-2025").classList.toggle("active", year === 2025);
+  document.getElementById("btn-2026").classList.toggle("active", year === 2026);
+}
+</script>
+</body>
+</html>
