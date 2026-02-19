@@ -23,6 +23,21 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 max-w-4xl mx-auto">
 
+  <!-- Password Gate -->
+  <div id="lock-screen" class="flex flex-col items-center justify-center min-h-screen">
+    <div class="card text-center" style="max-width:320px;width:100%">
+      <h2 class="text-lg font-bold mb-4">Enter Password</h2>
+      <input id="pw-input" type="password" placeholder="Password"
+        class="w-full px-3 py-2 rounded-lg bg-slate-700 text-white border border-slate-600 focus:border-blue-500 focus:outline-none mb-3"
+        onkeydown="if(event.key==='Enter')checkPw()">
+      <button onclick="checkPw()" class="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium">Unlock</button>
+      <p id="pw-error" class="text-red-400 text-xs mt-2 hidden">Wrong password</p>
+    </div>
+  </div>
+
+  <!-- Dashboard (hidden until authenticated) -->
+  <div id="dashboard" class="hidden">
+
   <h1 class="text-2xl font-bold mb-6">Subscription Tracker</h1>
 
   <!-- Metrics -->
@@ -223,6 +238,35 @@ function switchYear(year) {
   document.getElementById("btn-2025").classList.toggle("active", year === 2025);
   document.getElementById("btn-2026").classList.toggle("active", year === 2026);
 }
+
+// --- Password gate ---
+const PASS_HASH = "7c78eea7a591b0c8a4dad680372e35ca12e11cffdac5c69a39700c8014fbcc82";
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+async function checkPw() {
+  const input = document.getElementById("pw-input").value;
+  const hash = await sha256(input);
+  if (hash === PASS_HASH || sessionStorage.getItem("authed") === "1") {
+    sessionStorage.setItem("authed", "1");
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+  } else {
+    document.getElementById("pw-error").classList.remove("hidden");
+    document.getElementById("pw-input").value = "";
+  }
+}
+
+// Auto-unlock if already authenticated this session
+if (sessionStorage.getItem("authed") === "1") {
+  document.getElementById("lock-screen").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+}
 </script>
+
+  </div> <!-- close #dashboard -->
 </body>
 </html>
