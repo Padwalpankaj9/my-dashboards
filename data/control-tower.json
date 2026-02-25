@@ -1,0 +1,771 @@
+{
+  "summary": {
+    "generated_at_utc": "2026-02-25T02:17:02.400826+00:00",
+    "host": "apple@MacBookPro.hsd1.mi.comcast.net",
+    "containment_score": 60,
+    "containment_status": "warning",
+    "active_projects": 12,
+    "stale_projects": 2,
+    "mcp_active": 1,
+    "mcp_broken": 2,
+    "mcp_unused": 7,
+    "duplicate_config_types": 9,
+    "cron_jobs": 0
+  },
+  "system_map": {
+    "nodes": [
+      {
+        "id": "agents",
+        "label": "Agents",
+        "status": "good",
+        "count": 2
+      },
+      {
+        "id": "skills",
+        "label": "Skills",
+        "status": "good",
+        "count": 0
+      },
+      {
+        "id": "mcps",
+        "label": "MCPs",
+        "status": "critical",
+        "count": 10
+      },
+      {
+        "id": "clis",
+        "label": "CLIs",
+        "status": "good",
+        "count": 15
+      },
+      {
+        "id": "configs",
+        "label": "Configs",
+        "status": "warning",
+        "count": 56
+      },
+      {
+        "id": "automations",
+        "label": "Automations",
+        "status": "good",
+        "count": 0
+      },
+      {
+        "id": "projects",
+        "label": "Projects",
+        "status": "warning",
+        "count": 14
+      },
+      {
+        "id": "secrets",
+        "label": "Secrets",
+        "status": "good",
+        "count": 15
+      }
+    ],
+    "edges": [
+      {
+        "from": "agents",
+        "to": "skills"
+      },
+      {
+        "from": "agents",
+        "to": "mcps"
+      },
+      {
+        "from": "agents",
+        "to": "clis"
+      },
+      {
+        "from": "mcps",
+        "to": "configs"
+      },
+      {
+        "from": "clis",
+        "to": "projects"
+      },
+      {
+        "from": "automations",
+        "to": "projects"
+      },
+      {
+        "from": "secrets",
+        "to": "mcps"
+      }
+    ]
+  },
+  "containment": {
+    "score": 60,
+    "status": "warning",
+    "penalties": [
+      {
+        "reason": "stale_projects",
+        "points": 4
+      },
+      {
+        "reason": "dirty_repos",
+        "points": 6
+      },
+      {
+        "reason": "broken_mcps",
+        "points": 10
+      },
+      {
+        "reason": "duplicate_configs",
+        "points": 20
+      }
+    ]
+  },
+  "projects": {
+    "total": 14,
+    "active_count": 12,
+    "stale_count": 2,
+    "dirty_count": 6,
+    "repos": [
+      {
+        "name": "computer-science-fundamentals",
+        "path": "/Users/apple/Documents/Books/computer-science-fundamentals",
+        "branch": "main",
+        "dirty": true,
+        "days_since_commit": 2,
+        "status": "active"
+      },
+      {
+        "name": "granola-ai-mcp-server",
+        "path": "/Users/apple/granola-ai-mcp-server",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 2,
+        "status": "active"
+      },
+      {
+        "name": "kpi-automation",
+        "path": "/Users/apple/Documents/Software_Development/kpi-automation",
+        "branch": "main",
+        "dirty": true,
+        "days_since_commit": 3,
+        "status": "active"
+      },
+      {
+        "name": "book-pipeline",
+        "path": "/Users/apple/Documents/Software_Development/book-pipeline",
+        "branch": "main",
+        "dirty": true,
+        "days_since_commit": 4,
+        "status": "active"
+      },
+      {
+        "name": "test",
+        "path": "/Users/apple/Documents/Software_Development/test",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 7,
+        "status": "active"
+      },
+      {
+        "name": "fy27-kpi-tree",
+        "path": "/Users/apple/Documents/fy27-kpi-tree",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 7,
+        "status": "active"
+      },
+      {
+        "name": "NA-COGS-Calculator",
+        "path": "/Users/apple/Documents/Software_Development/NA-COGS-Calculator",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 12,
+        "status": "active"
+      },
+      {
+        "name": "NA-COGS-GSheets",
+        "path": "/Users/apple/Documents/Software_Development/NA-COGS-GSheets",
+        "branch": "main",
+        "dirty": true,
+        "days_since_commit": 12,
+        "status": "active"
+      },
+      {
+        "name": "US-financial-analyzer",
+        "path": "/Users/apple/Documents/Software_Development/US-financial-analyzer",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 14,
+        "status": "active"
+      },
+      {
+        "name": "ai-caller",
+        "path": "/Users/apple/Documents/Software_Development/ai-caller",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 14,
+        "status": "active"
+      },
+      {
+        "name": "gmail-otp-helper",
+        "path": "/Users/apple/Documents/Software_Development/gmail-otp-helper",
+        "branch": "main",
+        "dirty": true,
+        "days_since_commit": 14,
+        "status": "active"
+      },
+      {
+        "name": "my-dashboards",
+        "path": "/Users/apple/Documents/my-dashboards",
+        "branch": "main",
+        "dirty": true,
+        "days_since_commit": 0,
+        "status": "active"
+      },
+      {
+        "name": "onenote-mcp-server",
+        "path": "/Users/apple/mcp-servers/onenote-mcp-server",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 285,
+        "status": "stale"
+      },
+      {
+        "name": "gmail-mcp",
+        "path": "/Users/apple/Documents/gmail-mcp",
+        "branch": "main",
+        "dirty": false,
+        "days_since_commit": 361,
+        "status": "stale"
+      }
+    ]
+  },
+  "mcps": {
+    "total": 10,
+    "active": 1,
+    "broken": 2,
+    "unused": 7,
+    "items": [
+      {
+        "name": "gmail-mcp",
+        "path": "/Users/apple/Documents/gmail-mcp",
+        "exists": true,
+        "referenced": true,
+        "status": "active",
+        "size_bytes": 210853888,
+        "size_human": "201.1 MB"
+      },
+      {
+        "name": "python:*)",
+        "path": "/Users/apple/Documents/gmail-mcp/.venv/bin/python:*)",
+        "exists": false,
+        "referenced": true,
+        "status": "broken",
+        "size_bytes": 0,
+        "size_human": "0 B"
+      },
+      {
+        "name": "substack-mcp-plus",
+        "path": "/Users/apple/.npm-global/lib/node_modules/substack-mcp-plus",
+        "exists": false,
+        "referenced": true,
+        "status": "broken",
+        "size_bytes": 0,
+        "size_human": "0 B"
+      },
+      {
+        "name": ".playwright-mcp",
+        "path": "/Users/apple/.playwright-mcp",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 6041600,
+        "size_human": "5.8 MB"
+      },
+      {
+        "name": ".playwright-mcp",
+        "path": "/Users/apple/Documents/.playwright-mcp",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 60428288,
+        "size_human": "57.6 MB"
+      },
+      {
+        "name": "granola-ai-mcp-server",
+        "path": "/Users/apple/granola-ai-mcp-server",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 43708416,
+        "size_human": "41.7 MB"
+      },
+      {
+        "name": "onenote-mcp-server",
+        "path": "/Users/apple/mcp-servers/onenote-mcp-server",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 13279232,
+        "size_human": "12.7 MB"
+      },
+      {
+        "name": "smar-mcp",
+        "path": "/Users/apple/.claude/mcp-servers/smar-mcp",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 194039808,
+        "size_human": "185.1 MB"
+      },
+      {
+        "name": "smartsheet-mcp",
+        "path": "/Users/apple/.claude/mcp-servers/smartsheet-mcp",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 194039808,
+        "size_human": "185.1 MB"
+      },
+      {
+        "name": "whoop-mcp-server",
+        "path": "/Users/apple/.claude/mcp-servers/whoop-mcp-server",
+        "exists": true,
+        "referenced": false,
+        "status": "unused",
+        "size_bytes": 49864704,
+        "size_human": "47.6 MB"
+      }
+    ]
+  },
+  "clis": [
+    {
+      "command": "codex",
+      "resolved": "/opt/homebrew/bin/codex",
+      "manager": "homebrew"
+    },
+    {
+      "command": "claude",
+      "resolved": "/Users/apple/.npm-global/bin/claude",
+      "manager": "npm-global"
+    },
+    {
+      "command": "gemini",
+      "resolved": "/Users/apple/.npm-global/bin/gemini",
+      "manager": "npm-global"
+    },
+    {
+      "command": "imsg",
+      "resolved": "/Users/apple/.local/bin/imsg",
+      "manager": "uv-tool"
+    },
+    {
+      "command": "uv",
+      "resolved": "/opt/homebrew/bin/uv",
+      "manager": "homebrew"
+    },
+    {
+      "command": "node",
+      "resolved": "/opt/homebrew/bin/node",
+      "manager": "homebrew"
+    },
+    {
+      "command": "npm",
+      "resolved": "/Users/apple/.npm-global/bin/npm",
+      "manager": "npm-global"
+    },
+    {
+      "command": "npx",
+      "resolved": "/Users/apple/.npm-global/bin/npx",
+      "manager": "npm-global"
+    },
+    {
+      "command": "python3",
+      "resolved": "/opt/homebrew/bin/python3",
+      "manager": "homebrew"
+    },
+    {
+      "command": "pip3",
+      "resolved": "/opt/homebrew/bin/pip3",
+      "manager": "homebrew"
+    },
+    {
+      "command": "d2",
+      "resolved": "/opt/homebrew/bin/d2",
+      "manager": "homebrew"
+    },
+    {
+      "command": "mmdc",
+      "resolved": "/Users/apple/.npm-global/bin/mmdc",
+      "manager": "npm-global"
+    },
+    {
+      "command": "appium",
+      "resolved": "/Users/apple/.npm-global/bin/appium",
+      "manager": "npm-global"
+    },
+    {
+      "command": "vercel",
+      "resolved": "/Users/apple/.npm-global/bin/vercel",
+      "manager": "npm-global"
+    },
+    {
+      "command": "shopify",
+      "resolved": "/Users/apple/.npm-global/bin/shopify",
+      "manager": "npm-global"
+    }
+  ],
+  "configs": {
+    "total_markers": 56,
+    "duplicate_types": {
+      ".gemini": 3,
+      "settings.json": 4,
+      ".claude": 7,
+      "CLAUDE.md": 24,
+      "settings.local.json": 3,
+      "AGENTS.md": 7,
+      ".codex": 2,
+      ".playwright-mcp": 4,
+      ".appium": 2
+    },
+    "markers": [
+      {
+        "type": ".appium",
+        "path": "/Users/apple/.appium",
+        "is_dir": true
+      },
+      {
+        "type": ".appium",
+        "path": "/Users/apple/Documents/.appium",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/.claude/plugins/ralph-wiggum/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/.vscode/extensions/esbenp.prettier-vscode-12.3.0/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/Documents/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/Documents/PIRAMAL/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/Documents/Software_Development/kpi-automation/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".claude",
+        "path": "/Users/apple/Documents/Software_Development/openclaw-krish/.claude",
+        "is_dir": true
+      },
+      {
+        "type": ".codex",
+        "path": "/Users/apple/.codex",
+        "is_dir": true
+      },
+      {
+        "type": ".codex",
+        "path": "/Users/apple/Documents/.codex",
+        "is_dir": true
+      },
+      {
+        "type": ".gemini",
+        "path": "/Users/apple/.gemini",
+        "is_dir": true
+      },
+      {
+        "type": ".gemini",
+        "path": "/Users/apple/Documents/.gemini",
+        "is_dir": true
+      },
+      {
+        "type": ".gemini",
+        "path": "/Users/apple/gemini_chat/.gemini",
+        "is_dir": true
+      },
+      {
+        "type": ".playwright-mcp",
+        "path": "/Users/apple/.playwright-mcp",
+        "is_dir": true
+      },
+      {
+        "type": ".playwright-mcp",
+        "path": "/Users/apple/Documents/.playwright-mcp",
+        "is_dir": true
+      },
+      {
+        "type": ".playwright-mcp",
+        "path": "/Users/apple/Documents/PIRAMAL/.playwright-mcp",
+        "is_dir": true
+      },
+      {
+        "type": ".playwright-mcp",
+        "path": "/Users/apple/Documents/Software_Development/openclaw-krish/.playwright-mcp",
+        "is_dir": true
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/.claude/skills/daymade-skills/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/.codex/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/Documents/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/Documents/PIRAMAL/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/Documents/Software_Development/NA-COGS-GSheets/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/Documents/Software_Development/book-pipeline/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "AGENTS.md",
+        "path": "/Users/apple/Documents/Software_Development/kpi-automation/AGENTS.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/.claude/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/.claude/mcp-servers/smar-mcp/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/.claude/mcp-servers/smartsheet-mcp/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/.claude/plugins/ralph-wiggum/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/.claude/skills/daymade-skills/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/.vscode/extensions/esbenp.prettier-vscode-12.3.0/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/ai-visual-learning/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/ai-visualization-learning/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/blackswan/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/computer-science-fundamentals/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/how-to-win-friends-and-influence-people/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/investing/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/poor-charlies-almanack/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/prompt-engineering-learning/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/rlgn-104/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/self-help/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/skin-in-the-game/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/software-craftsmanship/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/superagers/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Books/taleb-skin-in-the-game/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/PIRAMAL/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Sean-Assignments/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "CLAUDE.md",
+        "path": "/Users/apple/Documents/Software_Development/NA-COGS-GSheets/CLAUDE.md",
+        "is_dir": false
+      },
+      {
+        "type": "settings.json",
+        "path": "/Users/apple/.claude/settings.json",
+        "is_dir": false
+      },
+      {
+        "type": "settings.json",
+        "path": "/Users/apple/.gemini/settings.json",
+        "is_dir": false
+      },
+      {
+        "type": "settings.json",
+        "path": "/Users/apple/Documents/Software_Development/gmail-otp-helper/settings.json",
+        "is_dir": false
+      },
+      {
+        "type": "settings.json",
+        "path": "/Users/apple/gemini_chat/.gemini/settings.json",
+        "is_dir": false
+      },
+      {
+        "type": "settings.local.json",
+        "path": "/Users/apple/.claude/settings.local.json",
+        "is_dir": false
+      },
+      {
+        "type": "settings.local.json",
+        "path": "/Users/apple/Documents/.claude/settings.local.json",
+        "is_dir": false
+      },
+      {
+        "type": "settings.local.json",
+        "path": "/Users/apple/Documents/PIRAMAL/.claude/settings.local.json",
+        "is_dir": false
+      }
+    ]
+  },
+  "automations": {
+    "status": "healthy",
+    "cron_jobs": [],
+    "launch_agents": [
+      {
+        "name": "com.google.keystone.agent.plist",
+        "path": "/Users/apple/Library/LaunchAgents/com.google.keystone.agent.plist"
+      },
+      {
+        "name": "com.pankaj.claude-codex-sync.plist",
+        "path": "/Users/apple/Library/LaunchAgents/com.pankaj.claude-codex-sync.plist"
+      }
+    ]
+  },
+  "secrets": {
+    "secrets_env_exists": true,
+    "secrets_env_path": "/Users/apple/.config/shell/secrets.env",
+    "managed_vars_count": 15,
+    "managed_vars": [
+      "ANNAS_SECRET_KEY",
+      "BLAND_API_KEY",
+      "BRAVE_SEARCH_API_KEY",
+      "ED_API_TOKEN",
+      "EXA_API_KEY",
+      "GEMINI_API_KEY",
+      "KIMI_API_KEY",
+      "NANOBANANA_GEMINI_API_KEY",
+      "OPENAI_API_KEY",
+      "OPENROUTER_API_KEY",
+      "QUICKFS_API_KEY",
+      "SARVAM_API_KEY",
+      "SMARTSHEET_ACCESS_TOKEN",
+      "SMARTSHEET_API_KEY",
+      "TELEGRAM_API_HASH"
+    ],
+    "env_files_count": 5,
+    "env_files": [
+      "/Users/apple/Documents/Software_Development/US-financial-analyzer/.env",
+      "/Users/apple/Documents/Software_Development/ai-caller/.env",
+      "/Users/apple/Documents/Software_Development/kpi-automation/.env",
+      "/Users/apple/Documents/Software_Development/telegram-codex-bridge/.env",
+      "/Users/apple/Documents/Software_Development/telegram-codex-bridge/.env.example"
+    ],
+    "sensitive_keys_found": []
+  },
+  "history": [
+    {
+      "generated_at_utc": "2026-02-25T02:16:21.966788+00:00",
+      "containment_score": 60,
+      "active_projects": 12,
+      "stale_projects": 2,
+      "mcp_broken": 2
+    },
+    {
+      "generated_at_utc": "2026-02-25T02:17:02.400826+00:00",
+      "containment_score": 60,
+      "active_projects": 12,
+      "stale_projects": 2,
+      "mcp_broken": 2
+    }
+  ]
+}

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Control Tower</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --ink: #17202a;
+      --muted: #5f6b7a;
+      --card: #ffffff;
+      --line: #dce3ed;
+      --ok: #0f8a5f;
+      --warn: #a86812;
+      --bad: #b42318;
+      --accent: #0f4c81;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 0% 0%, #edf4ff 0%, var(--bg) 60%);
+    }
+    .wrap { max-width: 1260px; margin: 0 auto; padding: 22px 14px 48px; }
+    .hero {
+      background: linear-gradient(130deg, #e9f7f1, #ecf1fb);
+      border: 1px solid #cdd8ea;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    h1 { margin: 0; font-size: 1.9rem; }
+    .sub { color: var(--muted); margin-top: 6px; }
+    .meta { color: var(--muted); font-size: 0.86rem; margin-top: 8px; }
+
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    }
+    .kpi { grid-column: span 3; }
+    .kpi h3 { margin: 0; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+    .kpi .v { margin-top: 4px; font-size: 1.25rem; font-weight: 700; }
+    .full { grid-column: 1 / -1; }
+    .half { grid-column: span 6; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .ok { color: #0d6f4e; background: #e8fbf3; border-color: #b8ecd7; }
+    .warn { color: #88510b; background: #fff5e8; border-color: #f3d5ad; }
+    .bad { color: #8f1f15; background: #ffeceb; border-color: #f0b9b5; }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .node {
+      border: 1px solid #d3ddea;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+    .node-title { font-size: 0.9rem; font-weight: 700; }
+    .node-meta { margin-top: 4px; color: var(--muted); font-size: 0.82rem; }
+    .links { margin-top: 8px; color: #46607d; font-size: 0.82rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #edf1f6; vertical-align: top; }
+    th { color: var(--muted); font-size: 0.78rem; }
+    .mono { font-family: "SF Mono", Menlo, monospace; font-size: 0.78rem; word-break: break-all; }
+
+    details { border: 1px solid #e5ebf3; border-radius: 10px; padding: 8px 10px; background: #fcfdff; }
+    details + details { margin-top: 8px; }
+    summary { cursor: pointer; font-weight: 700; }
+
+    .trend { display:flex; align-items:end; gap:8px; height:140px; margin-top:6px; }
+    .bar-wrap { flex:1; min-width:0; text-align:center; }
+    .bar-zone { height:90px; display:flex; align-items:end; justify-content:center; }
+    .bar { width:100%; max-width:44px; background: linear-gradient(180deg, #5a8fcc, #1f4e82); border-radius: 8px 8px 0 0; }
+    .tlabel { margin-top:5px; color:var(--muted); font-size:0.74rem; }
+
+    @media (max-width: 980px) {
+      .kpi { grid-column: span 6; }
+      .half { grid-column: 1 / -1; }
+      .map { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 640px) {
+      .kpi { grid-column: 1 / -1; }
+      .map { grid-template-columns: 1fr; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>AI Control Tower</h1>
+      <div class="sub">Single control plane for your Claude Code + Codex ecosystem.</div>
+      <div class="meta" id="meta">Generated: -</div>
+    </section>
+
+    <section class="grid" id="kpis"></section>
+
+    <section class="grid" style="margin-top:12px;">
+      <article class="card full">
+        <h2>System Map</h2>
+        <div class="map" id="map"></div>
+        <div class="links" id="mapLinks"></div>
+      </article>
+
+      <article class="card half">
+        <h2>Containment Trend</h2>
+        <div id="trendText" class="sub" style="margin-top:0;">Last few snapshots</div>
+        <div class="trend" id="trend"></div>
+      </article>
+
+      <article class="card half">
+        <h2>Current Attention Areas</h2>
+        <div id="attention"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Drill Down</h2>
+
+        <details open>
+          <summary>Projects (active vs stale + git status)</summary>
+          <table>
+            <thead><tr><th>Project</th><th>Status</th><th>Branch</th><th>Dirty</th><th>Days Since Commit</th><th>Path</th></tr></thead>
+            <tbody id="projectsBody"></tbody>
+          </table>
+        </details>
+
+        <details>
+          <summary>MCPs (active / broken / unused)</summary>
+          <table>
+            <thead><tr><th>Name</th><th>Status</th><th>Referenced</th><th>Size</th><th>Path</th></tr></thead>
+            <tbody id="mcpsBody"></tbody>
+          </table>
+        </details>
+
+        <details>
+          <summary>CLIs and Locations</summary>
+          <table>
+            <thead><tr><th>Command</th><th>Manager</th><th>Resolved</th></tr></thead>
+            <tbody id="clisBody"></tbody>
+          </table>
+        </details>
+
+        <details>
+          <summary>Config Markers and Duplicates</summary>
+          <table>
+            <thead><tr><th>Type</th><th>Path</th></tr></thead>
+            <tbody id="configsBody"></tbody>
+          </table>
+        </details>
+
+        <details>
+          <summary>Automations / Cron</summary>
+          <div id="cronBody"></div>
+        </details>
+
+        <details>
+          <summary>Secrets Hygiene</summary>
+          <div id="secretsBody"></div>
+        </details>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    function badge(status) {
+      if (status === "good" || status === "active" || status === "healthy") return '<span class="pill ok">' + status + '</span>';
+      if (status === "warning" || status === "unused" || status === "stale") return '<span class="pill warn">' + status + '</span>';
+      return '<span class="pill bad">' + status + '</span>';
+    }
+
+    function safe(v) { return v ?? "-"; }
+
+    async function loadData() {
+      const r = await fetch(`./data/control-tower.json?t=${Date.now()}`);
+      if (!r.ok) throw new Error("control-tower.json not found. Run generator script first.");
+      return r.json();
+    }
+
+    function renderTrend(history) {
+      const data = history.slice(-7);
+      const el = document.getElementById("trend");
+      if (!data.length) {
+        el.innerHTML = '<div class="sub">No trend data yet.</div>';
+        return;
+      }
+      const max = Math.max(...data.map(d => d.containment_score || 0), 1);
+      el.innerHTML = data.map(d => {
+        const dt = new Date(d.generated_at_utc);
+        const label = `${dt.getMonth()+1}/${dt.getDate()}`;
+        const h = Math.max(8, ((d.containment_score || 0) / max) * 100);
+        return `
+          <div class="bar-wrap">
+            <div class="bar-zone"><div class="bar" style="height:${h}%"></div></div>
+            <div class="tlabel">${label}<br>${d.containment_score}</div>
+          </div>`;
+      }).join("");
+
+      if (data.length >= 2) {
+        const delta = data[data.length - 1].containment_score - data[0].containment_score;
+        const sign = delta >= 0 ? "+" : "";
+        document.getElementById("trendText").textContent = `Last ${data.length} points. Net ${sign}${delta} score.`;
+      }
+    }
+
+    function render(snapshot) {
+      const s = snapshot.summary;
+      document.getElementById("meta").textContent = `Generated: ${new Date(s.generated_at_utc).toLocaleString()} | Host: ${s.host}`;
+
+      document.getElementById("kpis").innerHTML = [
+        ["Containment Score", `${s.containment_score}`, s.containment_status === "good" ? "var(--ok)" : s.containment_status === "warning" ? "var(--warn)" : "var(--bad)"],
+        ["Active Projects", `${s.active_projects}`, "var(--accent)"],
+        ["Stale Projects", `${s.stale_projects}`, "var(--warn)"],
+        ["MCP Broken", `${s.mcp_broken}`, "var(--bad)"],
+        ["MCP Unused", `${s.mcp_unused}`, "var(--warn)"],
+        ["Config Duplicates", `${s.duplicate_config_types}`, "var(--warn)"],
+        ["Cron Jobs", `${s.cron_jobs}`, "var(--accent)"],
+        ["MCP Active", `${s.mcp_active}`, "var(--ok)"]
+      ].map(k => `<article class="card kpi"><h3>${k[0]}</h3><div class="v" style="color:${k[2]}">${k[1]}</div></article>`).join("");
+
+      const nodes = snapshot.system_map.nodes || [];
+      document.getElementById("map").innerHTML = nodes.map(n => `
+        <div class="node">
+          <div class="node-title">${n.label} ${badge(n.status)}</div>
+          <div class="node-meta">Items: ${safe(n.count)}</div>
+        </div>
+      `).join("");
+
+      document.getElementById("mapLinks").innerHTML = (snapshot.system_map.edges || []).map(e => `• ${e.from} → ${e.to}`).join(" &nbsp; ");
+
+      const attention = [];
+      if (s.stale_projects > 0) attention.push(`Stale projects found: ${s.stale_projects}`);
+      if (s.mcp_broken > 0) attention.push(`Broken MCP references: ${s.mcp_broken}`);
+      if (s.duplicate_config_types > 0) attention.push(`Duplicate config zones: ${s.duplicate_config_types}`);
+      if (!attention.length) attention.push("No major red flags right now.");
+      document.getElementById("attention").innerHTML = attention.map(a => `<p class="sub" style="margin:6px 0;">• ${a}</p>`).join("");
+
+      document.getElementById("projectsBody").innerHTML = (snapshot.projects.repos || []).map(r => `
+        <tr>
+          <td>${r.name}</td>
+          <td>${badge(r.status)}</td>
+          <td>${r.branch}</td>
+          <td>${r.dirty ? '<span class="pill bad">dirty</span>' : '<span class="pill ok">clean</span>'}</td>
+          <td>${safe(r.days_since_commit)}</td>
+          <td class="mono">${r.path}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("mcpsBody").innerHTML = (snapshot.mcps.items || []).map(m => `
+        <tr>
+          <td>${m.name}</td>
+          <td>${badge(m.status)}</td>
+          <td>${m.referenced ? 'yes' : 'no'}</td>
+          <td>${m.size_human}</td>
+          <td class="mono">${m.path}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("clisBody").innerHTML = (snapshot.clis || []).map(c => `
+        <tr>
+          <td><span class="pill">${c.command}</span></td>
+          <td>${c.manager}</td>
+          <td class="mono">${c.resolved}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("configsBody").innerHTML = (snapshot.configs.markers || []).map(c => `
+        <tr><td>${c.type}</td><td class="mono">${c.path}</td></tr>
+      `).join("");
+
+      document.getElementById("cronBody").innerHTML = `
+        <p class="sub">Cron jobs: ${snapshot.automations.cron_jobs.length}</p>
+        ${(snapshot.automations.cron_jobs || []).map(j => `<div class="mono" style="padding:4px 0;">${j}</div>`).join("")}
+        <p class="sub" style="margin-top:8px;">Launch Agents: ${snapshot.automations.launch_agents.length}</p>
+        ${(snapshot.automations.launch_agents || []).map(a => `<div class="mono">${a.path}</div>`).join("")}
+      `;
+
+      const sec = snapshot.secrets;
+      document.getElementById("secretsBody").innerHTML = `
+        <p class="sub">secrets.env present: ${sec.secrets_env_exists ? 'yes' : 'no'}</p>
+        <p class="sub">Managed vars count: ${sec.managed_vars_count}</p>
+        <p class="sub">.env files found: ${sec.env_files_count}</p>
+        <p class="sub">Sensitive keys discovered in env files: ${sec.sensitive_keys_found.length}</p>
+        <div class="mono">${(sec.sensitive_keys_found || []).join(', ') || '-'}</div>
+      `;
+
+      renderTrend(snapshot.history || []);
+    }
+
+    loadData().then(render).catch(err => {
+      document.body.innerHTML = `<div style="padding:20px;font-family:Arial,sans-serif;">Error: ${err.message}<br/>Run: <code>python3 scripts_generate_control_tower_snapshot.py</code></div>`;
+    });
+  </script>
+</body>
+</html>
