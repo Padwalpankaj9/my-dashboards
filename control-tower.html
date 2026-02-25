@@ -190,9 +190,25 @@
     function safe(v) { return v ?? "-"; }
 
     async function loadData() {
-      const r = await fetch(`./data/control-tower.json?t=${Date.now()}`);
-      if (!r.ok) throw new Error("control-tower.json not found. Run generator script first.");
-      return r.json();
+      const sources = [
+        `./data/control-tower.json?t=${Date.now()}`,
+        `https://my-dashboards-vert.vercel.app/data/control-tower.json?t=${Date.now()}`
+      ];
+
+      let lastErr = null;
+      for (const src of sources) {
+        try {
+          const r = await fetch(src);
+          if (!r.ok) {
+            lastErr = new Error(`HTTP ${r.status} from ${src}`);
+            continue;
+          }
+          return await r.json();
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr || new Error("Unable to load control tower data.");
     }
 
     function renderTrend(history) {
@@ -306,7 +322,13 @@
     }
 
     loadData().then(render).catch(err => {
-      document.body.innerHTML = `<div style="padding:20px;font-family:Arial,sans-serif;">Error: ${err.message}<br/>Run: <code>python3 scripts_generate_control_tower_snapshot.py</code></div>`;
+      document.body.innerHTML = `<div style="padding:20px;font-family:Arial,sans-serif;">
+        Error: ${err.message}<br/><br/>
+        If you opened this as a local file, open via Vercel URL instead:<br/>
+        <code>https://my-dashboards-vert.vercel.app/control-tower.html</code><br/><br/>
+        For local refresh, run:<br/>
+        <code>python3 scripts_generate_control_tower_snapshot.py</code>
+      </div>`;
     });
   </script>
 </body>
