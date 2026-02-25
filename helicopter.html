@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mac Helicopter View</title>
+  <style>
+    :root {
+      --bg: #f7f6f3;
+      --ink: #1d232a;
+      --muted: #5d6772;
+      --card: #ffffff;
+      --line: #d9dfe6;
+      --accent: #0b6e4f;
+      --accent-2: #0f4c81;
+      --warn: #a25a15;
+      --danger: #a12626;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 0% 0%, #fff8e8 0%, var(--bg) 55%);
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 16px 64px;
+    }
+
+    .hero {
+      background: linear-gradient(120deg, #eaf6f1, #e9f0fa);
+      border: 1px solid #c9d8e9;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .meta {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .kpi { grid-column: span 3; }
+    .kpi h3 { margin: 0 0 6px; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+    .kpi .v { font-size: 1.25rem; font-weight: 700; }
+
+    .full { grid-column: 1 / -1; }
+    .half { grid-column: span 6; }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 6px;
+      border-bottom: 1px solid #edf1f5;
+      vertical-align: top;
+    }
+
+    th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+
+    .mono {
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 0.8rem;
+      word-break: break-all;
+    }
+
+    .bar {
+      height: 8px;
+      background: #eef3f7;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      background: #edf4ff;
+      color: #2c4f77;
+      border: 1px solid #cfe0f7;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+
+    .hint { color: var(--muted); margin: 0; }
+    .trend {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      height: 170px;
+      padding: 8px 0;
+    }
+    .trend-col {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+    }
+    .trend-bar-wrap {
+      height: 130px;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+    }
+    .trend-bar {
+      width: 100%;
+      max-width: 48px;
+      border-radius: 8px 8px 0 0;
+      background: linear-gradient(180deg, #5fb89f, #0f6f54);
+      transition: height 0.25s ease;
+    }
+    .trend-label {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+    .trend-value {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .kpi { grid-column: span 6; }
+      .half { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 600px) {
+      .kpi { grid-column: 1 / -1; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Mac Helicopter View</h1>
+      <div class="sub">Visibility-only map of your AI, MCP, CLI, and project sprawl.</div>
+      <div class="meta">
+        <span id="generatedAt">Generated: -</span>
+        <span id="hostInfo">Host: -</span>
+      </div>
+    </section>
+
+    <section class="grid" id="kpiGrid"></section>
+
+    <section class="grid" style="margin-top: 14px;">
+      <article class="card full">
+        <h2>7 Snapshot Trend (Total Tracked)</h2>
+        <div class="sub" id="trendSub" style="margin-top:0;margin-bottom:8px;">Latest trend from snapshot history</div>
+        <div class="trend" id="trend7"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Key Locations By Size</h2>
+        <table>
+          <thead>
+            <tr><th>Location</th><th>Path</th><th>Size</th><th>Relative</th></tr>
+          </thead>
+          <tbody id="keyLocationsBody"></tbody>
+        </table>
+      </article>
+
+      <article class="card half">
+        <h2>CLI Resolution</h2>
+        <table>
+          <thead><tr><th>Command</th><th>Resolved</th></tr></thead>
+          <tbody id="cliBody"></tbody>
+        </table>
+      </article>
+
+      <article class="card half">
+        <h2>PATH Order</h2>
+        <div id="pathBody"></div>
+      </article>
+
+      <article class="card half">
+        <h2>Top Buckets: ~/.claude</h2>
+        <table>
+          <thead><tr><th>Name</th><th>Size</th></tr></thead>
+          <tbody id="claudeBreakdown"></tbody>
+        </table>
+      </article>
+
+      <article class="card half">
+        <h2>Top Buckets: Claude App Support</h2>
+        <table>
+          <thead><tr><th>Name</th><th>Size</th></tr></thead>
+          <tbody id="claudeAppBreakdown"></tbody>
+        </table>
+      </article>
+
+      <article class="card full">
+        <h2>Fragmentation Hints</h2>
+        <div id="hints"></div>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    async function loadData() {
+      const res = await fetch(`./data/snapshot.json?t=${Date.now()}`);
+      if (!res.ok) throw new Error("snapshot.json not found. Run generator script first.");
+      return res.json();
+    }
+
+    function kpi(label, value, color = "var(--accent)") {
+      return `<article class="card kpi"><h3>${label}</h3><div class="v" style="color:${color}">${value}</div></article>`;
+    }
+
+    function safe(v) {
+      return v ?? "-";
+    }
+
+    function renderBreakdown(rows, id) {
+      const body = document.getElementById(id);
+      body.innerHTML = rows.map(r => `
+        <tr>
+          <td class="mono">${safe(r.name)}</td>
+          <td>${safe(r.size_human)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function render(data) {
+      document.getElementById("generatedAt").textContent = `Generated: ${new Date(data.generated_at_utc).toLocaleString()}`;
+      document.getElementById("hostInfo").textContent = `Host: ${data.host.user}@${data.host.hostname}`;
+
+      const key = data.key_locations || [];
+      const total = key.reduce((a, b) => a + (b.size_bytes || 0), 0);
+      const largest = key[0] || {};
+      const root = data.disk_root || {};
+      const clisResolved = (data.clis || []).filter(c => c.resolved && c.resolved !== "not-found").length;
+
+      document.getElementById("kpiGrid").innerHTML = [
+        kpi("Tracked Locations", String(key.length)),
+        kpi("Largest Zone", safe(largest.size_human), "var(--danger)"),
+        kpi("Total Tracked", total ? `${(total / (1024**3)).toFixed(1)} GB` : "-", "var(--warn)"),
+        kpi("CLIs Resolved", `${clisResolved}/${(data.clis || []).length}`, "var(--accent-2)"),
+        kpi("Disk Used", safe(root.used_human)),
+        kpi("Disk Available", safe(root.avail_human), "var(--accent)")
+      ].join("");
+
+      const maxBytes = Math.max(...key.map(k => k.size_bytes || 0), 1);
+      document.getElementById("keyLocationsBody").innerHTML = key.map(k => {
+        const pct = ((k.size_bytes || 0) / maxBytes) * 100;
+        return `
+          <tr>
+            <td>${safe(k.label)}</td>
+            <td class="mono">${safe(k.path)}</td>
+            <td>${safe(k.size_human)}</td>
+            <td>
+              <div class="bar"><span style="width:${pct.toFixed(1)}%"></span></div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("cliBody").innerHTML = (data.clis || []).map(c => `
+        <tr>
+          <td><span class="pill">${c.command}</span></td>
+          <td class="mono">${c.resolved}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("pathBody").innerHTML = (data.path_entries || []).map((p, i) => {
+        return `<div class="mono" style="padding:4px 0;border-bottom:1px solid #edf1f5;"><strong>${i + 1}.</strong> ${p}</div>`;
+      }).join("");
+
+      renderBreakdown((data.breakdowns || {}).claude_home || [], "claudeBreakdown");
+      renderBreakdown((data.breakdowns || {}).claude_app_support || [], "claudeAppBreakdown");
+
+      document.getElementById("hints").innerHTML = (data.fragmentation_hints || []).map(h => `<p class="hint">• ${h}</p>`).join("");
+
+      const history = (data.history || []).slice(-7);
+      const trendEl = document.getElementById("trend7");
+      if (history.length > 0) {
+        const max = Math.max(...history.map(h => h.total_tracked_bytes || 0), 1);
+        trendEl.innerHTML = history.map(h => {
+          const dt = new Date(h.generated_at_utc);
+          const label = `${dt.getMonth() + 1}/${dt.getDate()}`;
+          const hh = dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          const heightPct = Math.max(8, ((h.total_tracked_bytes || 0) / max) * 100);
+          return `
+            <div class="trend-col">
+              <div class="trend-bar-wrap">
+                <div class="trend-bar" style="height:${heightPct}%"></div>
+              </div>
+              <div class="trend-label">${label}<br>${hh}</div>
+              <div class="trend-value">${h.total_tracked_human || "-"}</div>
+            </div>
+          `;
+        }).join("");
+
+        if (history.length >= 2) {
+          const first = history[0].total_tracked_bytes || 0;
+          const last = history[history.length - 1].total_tracked_bytes || 0;
+          const delta = last - first;
+          const sign = delta >= 0 ? "+" : "-";
+          const deltaAbs = Math.abs(delta);
+          const deltaGb = (deltaAbs / (1024 ** 3)).toFixed(2);
+          const direction = delta >= 0 ? "up" : "down";
+          document.getElementById("trendSub").textContent = `Last ${history.length} points. Net ${direction} ${sign}${deltaGb} GB.`;
+        }
+      } else {
+        trendEl.innerHTML = `<div class="hint">No history yet. Run the snapshot script a few times to build trend data.</div>`;
+      }
+    }
+
+    loadData().then(render).catch(err => {
+      document.body.innerHTML = `<div style="padding:20px;font-family:Arial,sans-serif;">Error loading snapshot: ${err.message}<br/><br/>Run:<br/><code>python3 scripts_generate_helicopter_snapshot.py</code></div>`;
+    });
+  </script>
+</body>
+</html>

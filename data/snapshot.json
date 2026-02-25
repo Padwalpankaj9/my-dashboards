@@ -1,0 +1,227 @@
+{
+  "generated_at_utc": "2026-02-25T01:59:14.100099+00:00",
+  "host": {
+    "hostname": "MacBookPro.hsd1.mi.comcast.net",
+    "user": "apple",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "python": "3.14.3"
+  },
+  "disk_root": {
+    "filesystem": "/dev/disk3s1s1",
+    "size_bytes": 994662584320,
+    "used_bytes": 16337367040,
+    "avail_bytes": 648524599296,
+    "capacity": "3%",
+    "size_human": "926.4 GB",
+    "used_human": "15.2 GB",
+    "avail_human": "604.0 GB"
+  },
+  "key_locations": [
+    {
+      "label": "Claude App Support",
+      "path": "/Users/apple/Library/Application Support/Claude",
+      "exists": true,
+      "size_bytes": 8779288576,
+      "size_human": "8.2 GB"
+    },
+    {
+      "label": "Playwright Cache",
+      "path": "/Users/apple/Library/Caches/ms-playwright",
+      "exists": true,
+      "size_bytes": 5538144256,
+      "size_human": "5.2 GB"
+    },
+    {
+      "label": "Documents",
+      "path": "/Users/apple/Documents",
+      "exists": true,
+      "size_bytes": 5093576704,
+      "size_human": "4.7 GB"
+    },
+    {
+      "label": "Software Development",
+      "path": "/Users/apple/Documents/Software_Development",
+      "exists": true,
+      "size_bytes": 3547070464,
+      "size_human": "3.3 GB"
+    },
+    {
+      "label": "Claude Home",
+      "path": "/Users/apple/.claude",
+      "exists": true,
+      "size_bytes": 3301101568,
+      "size_human": "3.1 GB"
+    },
+    {
+      "label": "npm Global",
+      "path": "/Users/apple/.npm-global",
+      "exists": true,
+      "size_bytes": 1808752640,
+      "size_human": "1.7 GB"
+    },
+    {
+      "label": "Gmail Homes",
+      "path": "/Users/apple/.gmail-homes",
+      "exists": true,
+      "size_bytes": 1322704896,
+      "size_human": "1.2 GB"
+    },
+    {
+      "label": "Gemini Home",
+      "path": "/Users/apple/.gemini",
+      "exists": true,
+      "size_bytes": 645320704,
+      "size_human": "615.4 MB"
+    },
+    {
+      "label": "Local Share",
+      "path": "/Users/apple/.local",
+      "exists": true,
+      "size_bytes": 633769984,
+      "size_human": "604.4 MB"
+    },
+    {
+      "label": "Codex Home",
+      "path": "/Users/apple/.codex",
+      "exists": true,
+      "size_bytes": 396247040,
+      "size_human": "377.9 MB"
+    },
+    {
+      "label": "gmail-mcp",
+      "path": "/Users/apple/Documents/gmail-mcp",
+      "exists": true,
+      "size_bytes": 210853888,
+      "size_human": "201.1 MB"
+    },
+    {
+      "label": "Documents .appium",
+      "path": "/Users/apple/Documents/.appium",
+      "exists": true,
+      "size_bytes": 180428800,
+      "size_human": "172.1 MB"
+    },
+    {
+      "label": "Documents .playwright-mcp",
+      "path": "/Users/apple/Documents/.playwright-mcp",
+      "exists": true,
+      "size_bytes": 60428288,
+      "size_human": "57.6 MB"
+    },
+    {
+      "label": "nanobanana-output",
+      "path": "/Users/apple/Documents/nanobanana-output",
+      "exists": true,
+      "size_bytes": 58277888,
+      "size_human": "55.6 MB"
+    }
+  ],
+  "clis": [
+    {
+      "command": "codex",
+      "resolved": "/opt/homebrew/bin/codex"
+    },
+    {
+      "command": "claude",
+      "resolved": "/Users/apple/.npm-global/bin/claude"
+    },
+    {
+      "command": "gemini",
+      "resolved": "/Users/apple/.npm-global/bin/gemini"
+    },
+    {
+      "command": "imsg",
+      "resolved": "/Users/apple/.local/bin/imsg"
+    },
+    {
+      "command": "uv",
+      "resolved": "/opt/homebrew/bin/uv"
+    },
+    {
+      "command": "node",
+      "resolved": "/opt/homebrew/bin/node"
+    },
+    {
+      "command": "npm",
+      "resolved": "/Users/apple/.npm-global/bin/npm"
+    },
+    {
+      "command": "npx",
+      "resolved": "/Users/apple/.npm-global/bin/npx"
+    },
+    {
+      "command": "python3",
+      "resolved": "/opt/homebrew/bin/python3"
+    },
+    {
+      "command": "pip3",
+      "resolved": "/opt/homebrew/bin/pip3"
+    },
+    {
+      "command": "d2",
+      "resolved": "/opt/homebrew/bin/d2"
+    },
+    {
+      "command": "mmdc",
+      "resolved": "/Users/apple/.npm-global/bin/mmdc"
+    },
+    {
+      "command": "appium",
+      "resolved": "/Users/apple/.npm-global/bin/appium"
+    },
+    {
+      "command": "vercel",
+      "resolved": "/Users/apple/.npm-global/bin/vercel"
+    },
+    {
+      "command": "shopify",
+      "resolved": "/Users/apple/.npm-global/bin/shopify"
+    }
+  ],
+  "path_entries": [
+    "/Users/apple/.codex/tmp/arg0/codex-arg0edL3ZP",
+    "/Users/apple/.npm-global/lib/node_modules/agent-browser/bin",
+    "/Users/apple/.npm-global/bin",
+    "/Users/apple/.antigravity/antigravity/bin",
+    "/Users/apple/.local/bin",
+    "/opt/homebrew/bin",
+    "/opt/homebrew/sbin",
+    "/usr/local/bin",
+    "/System/Cryptexes/App/usr/bin",
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+    "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin",
+    "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin",
+    "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin",
+    "/opt/pmk/env/global/bin",
+    "/Library/Apple/usr/bin",
+    "/Applications/Ghostty.app/Contents/MacOS",
+    "/Users/apple/Library/Application Support/JetBrains/Toolbox/scripts"
+  ],
+  "fragmentation_hints": [
+    "Claude roots: ~/.claude + ~/Documents/.claude + project-level .claude folders",
+    "Playwright roots: ~/.playwright-mcp + ~/Documents/.playwright-mcp + project-level copies",
+    "MCP roots: ~/.claude/mcp-servers + ~/mcp-servers + ~/Documents/gmail-mcp",
+    "Workspace roots: ~/Documents/Software_Development plus standalone repos in ~"
+  ],
+  "breakdowns": {
+    "home": [],
+    "library": [],
+    "claude_home": [],
+    "claude_app_support": [],
+    "npm_globals": [],
+    "documents": []
+  },
+  "history": [
+    {
+      "generated_at_utc": "2026-02-25T01:59:14.100099+00:00",
+      "total_tracked_bytes": 31575965696,
+      "total_tracked_human": "29.4 GB",
+      "largest_label": "Claude App Support",
+      "largest_bytes": 8779288576,
+      "largest_human": "8.2 GB"
+    }
+  ]
+}
