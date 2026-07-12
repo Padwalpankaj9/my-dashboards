@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>The Application Ledger</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f6f1e3'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='serif' font-size='44' fill='%23211d14'%3EL%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&amp;family=Spline+Sans+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f1e3;
+      --ink: #211d14;
+      --rule: rgba(33, 29, 20, 0.18);
+      --good: #0c6410;
+      --pending: #c98a00;
+      --bad: #b32d2d;
+      --grain: 0.03;
+    }
+
+    html[data-edition="night"] {
+      --paper: #191611;
+      --ink: #f6f1e3;
+      --rule: rgba(246, 241, 227, 0.18);
+      --good: #0ca30c;
+      --pending: #fab219;
+      --bad: #d03b3b;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Newsreader", Georgia, serif;
+      font-size: 18px;
+      line-height: 1.45;
+      transition: color 180ms ease, background-color 180ms ease;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      content: "";
+      opacity: var(--grain);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+
+    .shell {
+      width: min(1080px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .edition-toggle {
+      position: absolute;
+      top: 22px;
+      right: max(20px, calc((100vw - 1080px) / 2));
+      padding: 0 0 2px;
+      border: 0;
+      border-bottom: 1px solid var(--rule);
+      background: transparent;
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .masthead {
+      padding: 72px 0 28px;
+      text-align: center;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .masthead h1 {
+      margin: 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(34px, 7vw, 76px);
+      font-weight: 650;
+      line-height: .95;
+      letter-spacing: -.035em;
+    }
+
+    .dateline, .label, th, .eyebrow {
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .13em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .dateline { margin-top: 18px; }
+
+    .mission {
+      max-width: 760px;
+      margin: 22px auto 0;
+      font-size: clamp(17px, 2.2vw, 21px);
+      font-style: italic;
+      line-height: 1.35;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 28px;
+      overflow-x: auto;
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--rule);
+      background: var(--paper);
+      scrollbar-width: none;
+    }
+
+    nav::-webkit-scrollbar { display: none; }
+
+    nav a {
+      flex: 0 0 auto;
+      padding-bottom: 3px;
+      border-bottom: 1px solid transparent;
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    nav a:hover, nav a.active { border-bottom-color: var(--ink); }
+
+    main { padding-bottom: 100px; }
+
+    section {
+      padding: 72px 0 32px;
+      scroll-margin-top: 42px;
+    }
+
+    section + section { border-top: 1px solid var(--rule); }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 34px;
+    }
+
+    h2, h3 {
+      margin: 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 500;
+    }
+
+    h2 { font-size: clamp(30px, 5vw, 50px); }
+    h3 { font-size: 27px; }
+    p { margin: 0; }
+
+    .section-number {
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 11px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .stat { padding: 28px 26px 25px 0; }
+    .stat + .stat { padding-left: 26px; border-left: 1px solid var(--rule); }
+
+    .stat-value {
+      display: block;
+      margin-bottom: 6px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(52px, 8vw, 86px);
+      font-variant-numeric: tabular-nums;
+      line-height: .9;
+    }
+
+    .calendar-area {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
+      gap: 54px;
+      margin-top: 52px;
+    }
+
+    .months {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(210px, 1fr));
+      gap: 34px;
+    }
+
+    .month-title { margin-bottom: 12px; }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(18px, 1fr));
+      gap: 6px;
+    }
+
+    .weekday {
+      overflow: hidden;
+      text-align: center;
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 8px;
+      text-transform: uppercase;
+    }
+
+    .day {
+      position: relative;
+      aspect-ratio: 1;
+      border: 1px solid var(--rule);
+    }
+
+    .day.blank { visibility: hidden; }
+    .day.done { border-color: var(--ink); background: var(--ink); }
+    .day.missed {
+      background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-1 1L1-1M0 6L6 0M5 7L7 5' stroke='%238b8579' stroke-opacity='.42' stroke-width='.7'/%3E%3C/svg%3E");
+    }
+
+    .day span {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 7px;
+      line-height: 1;
+    }
+
+    .day.done span { color: var(--paper); }
+
+    .longest {
+      margin-top: 14px;
+      font-style: italic;
+    }
+
+    .scorebox {
+      align-self: start;
+      padding-top: 2px;
+    }
+
+    .pipeline {
+      margin: 10px 0 36px;
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      line-height: 2;
+    }
+
+    .week-progress { margin-top: 10px; font-style: italic; }
+
+    .progress-track {
+      height: 3px;
+      margin-top: 13px;
+      border: 1px solid var(--rule);
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 3px;
+      margin: -1px 0 0 -1px;
+      background: var(--ink);
+      transition: width 700ms ease 350ms;
+    }
+
+    .table-wrap { width: 100%; overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 0 16px 10px 0;
+      border-bottom: 1px solid var(--ink);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 15px 16px 15px 0;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.3;
+    }
+
+    .num {
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .placeholder { font-style: italic; }
+    .status { font-style: italic; white-space: nowrap; }
+    .status.staged, .status.applied, .status.awaiting { color: var(--pending); }
+    .status.response, .status.interview, .status.offer { color: var(--good); }
+    .status.declined { color: var(--bad); }
+
+    .resume-block + .resume-block { margin-top: 56px; }
+    .note { margin: 8px 0 22px; font-style: italic; }
+    #master-resume:empty, #resume-variants:empty { min-height: 30px; border-bottom: 1px solid var(--rule); }
+
+    .variant {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 24px;
+      padding: 18px 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .role-link {
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    #access-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      background: var(--paper);
+    }
+
+    .gate-inner { width: min(520px, 100%); }
+    .gate-kicker { margin-bottom: 16px; }
+
+    .gate-title {
+      margin: 0 0 30px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(38px, 8vw, 62px);
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .gate-form { display: flex; align-items: end; gap: 18px; }
+
+    .gate-form input {
+      min-width: 0;
+      flex: 1;
+      padding: 8px 0 6px;
+      border: 0;
+      border-bottom: 1px solid var(--ink);
+      border-radius: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+      font-family: "Newsreader", Georgia, serif;
+    }
+
+    .gate-form button {
+      padding: 7px 0 5px;
+      border: 0;
+      border-bottom: 1px solid var(--ink);
+      background: transparent;
+      font-family: "Spline Sans Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .gate-error {
+      min-height: 22px;
+      margin-top: 12px;
+      color: var(--bad);
+      font-style: italic;
+    }
+
+    [hidden] { display: none !important; }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    body.ready .reveal { animation: rise 520ms ease forwards; }
+    body.ready .reveal:nth-of-type(2) { animation-delay: 60ms; }
+    body.ready .reveal:nth-of-type(3) { animation-delay: 120ms; }
+    body.ready .reveal:nth-of-type(4) { animation-delay: 180ms; }
+
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 28px, 1080px); }
+      .edition-toggle { top: 16px; right: 14px; }
+      .masthead { padding-top: 66px; }
+      nav { gap: 22px; }
+      section { padding-top: 54px; }
+      .hero-stats { grid-template-columns: 1fr; }
+      .stat { padding: 22px 0; }
+      .stat + .stat { padding-left: 0; border-top: 1px solid var(--rule); border-left: 0; }
+      .calendar-area { grid-template-columns: 1fr; gap: 42px; }
+      .months { gap: 18px; }
+      .calendar-grid { gap: 4px; }
+      .day span { display: none; }
+    }
+
+    @media (max-width: 390px) {
+      .months { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .calendar-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+      .month-title { font-size: 9px; letter-spacing: .08em; }
+      .section-head { margin-bottom: 26px; }
+      .variant { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; }
+      body.ready .reveal { animation: none; }
+      .progress-fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <button class="edition-toggle" id="edition-toggle" type="button">night edition</button>
+
+  <div id="access-gate">
+    <div class="gate-inner">
+      <div class="gate-kicker eyebrow">Private edition · Vol. 1</div>
+      <h1 class="gate-title">The Application Ledger</h1>
+      <form class="gate-form" id="gate-form">
+        <input id="password" type="password" placeholder="Enter password" aria-label="Password" autocomplete="current-password" required>
+        <button type="submit">Open ledger</button>
+      </form>
+      <p class="gate-error" id="gate-error" role="alert" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div id="ledger" hidden>
+    <header class="masthead shell">
+      <h1>THE APPLICATION LEDGER</h1>
+      <div class="dateline">Pankaj Padwal · July–August 2026 Campaign · Vol. 1</div>
+      <p class="mission" id="mission"></p>
+    </header>
+
+    <nav class="shell" aria-label="Ledger sections">
+      <a class="active" href="#overview">Overview</a>
+      <a href="#applications">Applications</a>
+      <a href="#resumes">Resumes</a>
+      <a href="#batch">Pipeline</a>
+    </nav>
+
+    <main class="shell">
+      <section class="reveal" id="overview">
+        <div class="section-head"><h2>Overview</h2><span class="section-number">01</span></div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-value" id="current-streak">0</span><span class="label">Current streak (days)</span></div>
+          <div class="stat"><span class="stat-value" id="applications-sent">0</span><span class="label">Applications sent</span></div>
+          <div class="stat"><span class="stat-value" id="days-remaining">0</span><span class="label">Days to Aug 31</span></div>
+        </div>
+
+        <div class="calendar-area">
+          <div>
+            <div class="months" id="months"></div>
+            <p class="longest" id="longest-streak"></p>
+          </div>
+          <aside class="scorebox">
+            <div class="eyebrow">Campaign pipeline</div>
+            <p class="pipeline" id="pipeline"></p>
+            <div class="eyebrow">This week</div>
+            <p class="week-progress" id="week-progress"></p>
+            <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="reveal" id="applications">
+        <div class="section-head"><h2>Applications</h2><span class="section-number">02</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Company</th><th>Role</th><th>Salary</th><th>Fit</th><th>Status</th><th>Resume</th></tr></thead>
+            <tbody id="applications-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Privacy rule: never include a phone number, street address, or email on this page or in future data. -->
+      <section class="reveal" id="resumes">
+        <div class="section-head"><h2>Resumes</h2><span class="section-number">03</span></div>
+        <div class="resume-block">
+          <h3>Master Resume</h3>
+          <p class="note" id="master-note">In drafting. Locks July 13.</p>
+          <article id="master-resume"></article>
+        </div>
+        <div class="resume-block">
+          <h3>Company Variants</h3>
+          <p class="note">One entry per application, showing what changed from master.</p>
+          <div id="resume-variants"></div>
+        </div>
+      </section>
+
+      <section class="reveal" id="batch">
+        <div class="section-head"><h2>Pipeline</h2><span class="section-number">04</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>Company</th><th>Role</th><th>Location</th><th>Salary</th><th>Fit</th><th>Status</th></tr></thead>
+            <tbody id="batch-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // EDIT ONLY THIS OBJECT TO UPDATE THE LEDGER.
+    const DATA = {
+      mission: "At least one active interview loop by August 31, produced by shipping applications every single week.",
+      campaignStart: "2026-07-12",
+      campaignEnd: "2026-08-31",
+      weeklyTarget: 8,
+      streak: { "2026-07-12": true },
+      pipeline: { staged: 11, applied: 0, responses: 0, interviews: 0, offers: 0 },
+      applications: [],
+      masterResumeHtml: null,
+      resumeVariants: [],
+      batch: [
+        { rank: 1, company: "Bristol Myers Squibb", role: "Scientist, Manufacturing Technology", location: "Devens, MA", salary: "$114,290–$138,494", fit: 9.5, applyUrl: "https://bristolmyerssquibb.wd5.myworkdayjobs.com/BMS/job/Devens---MA---US/Scientist--Manufacturing-Technology_R1603924" },
+        { rank: 2, company: "Sanofi", role: "Statistical Data Scientist – Injectables & Tech Transfer", location: "Swiftwater, PA", salary: "$90,000–$130,000", fit: 9.0, applyUrl: "https://sanofi.wd3.myworkdayjobs.com/SanofiCareers/job/Swiftwater-PA/Statistical-Data-Scientist---Injectables-and-Tech-Transfer_R2862927" },
+        { rank: 3, company: "Amgen", role: "Sr. Data Scientist", location: "Thousand Oaks, CA / Remote", salary: "$134,168–$181,522", fit: 8.9, applyUrl: "https://amgen.wd1.myworkdayjobs.com/Careers/job/US---California---Thousand-Oaks/Sr-Data-Scientist_R-249670" },
+        { rank: 4, company: "AbbVie", role: "Principal Applied AI Engineer (Hybrid)", location: "North Chicago, IL", salary: "$124,500–$236,500", fit: 9.0, applyUrl: "https://careers.abbvie.com/en/job/principal-applied-ai-engineer-hybrid-in-north-chicago-il-jid-27463" },
+        { rank: 5, company: "Amgen", role: "Senior Manufacturing Systems Engineer: Automation – DeltaV", location: "Holly Springs, NC", salary: "$136,907–$185,227", fit: 8.8, applyUrl: "https://amgen.wd1.myworkdayjobs.com/Careers/job/US---North-Carolina---Holly-Springs/Senior-Manufacturing-Systems-Engineer--Automation_R-235073" },
+        { rank: 6, company: "Sanofi", role: "Automation Engineer", location: "Framingham, MA", salary: "$78,000–$112,667", fit: 8.7, applyUrl: "https://sanofi.wd3.myworkdayjobs.com/SanofiCareers/job/Framingham-MA/Automation-Engineer_R2860783-1" },
+        { rank: 7, company: "Novartis", role: "Senior Automation Engineer", location: "Durham, NC", salary: "$108,500–$201,500", fit: 8.0, applyUrl: "https://novartis.wd3.myworkdayjobs.com/Novartis_Careers/job/Durham/Senior-Automation-Engineer_REQ-10074790" },
+        { rank: 8, company: "Bristol Myers Squibb", role: "Senior Data Scientist", location: "Tampa, FL (+2)", salary: "$111,890–$155,921", fit: 6.7, applyUrl: "https://bristolmyerssquibb.wd5.myworkdayjobs.com/BMS/job/Tampa---FL---US/Senior-Data-Scientist_R1603790" },
+        { rank: 9, company: "Takeda", role: "Sr. Data Engineer – Analytical Development", location: "Boston, MA", salary: "$137,000–$215,270", fit: 6.6, applyUrl: "https://takeda.wd3.myworkdayjobs.com/External/job/Boston-MA/Sr-Data-Engineer---Analytical-Development_R0178210-1" },
+        { rank: 10, company: "Merck", role: "Assoc. Principal Scientist, Digital Technologies", location: "Rahway, NJ", salary: "$142,400–$224,100", fit: 6.4, applyUrl: "https://msd.wd5.myworkdayjobs.com/SearchJobs/job/USA---New-Jersey---Rahway/Associate-Principal-Scientist--DSCS-Digital-Technologies-Laboratory-Automation--Semantic-Technologies---Scientific-Data-Integration_R404943-1" },
+        { rank: 11, company: "Merck", role: "Associate Director, AI/ML Engineering", location: "Cambridge, MA", salary: "$159,600–$251,200", fit: 5.6, applyUrl: "https://msd.wd5.myworkdayjobs.com/SearchJobs/job/USA---Massachusetts---Cambridge-320-Bent-Street/Associate-Director--AI-ML-Engineering_R406566-1" }
+      ]
+    };
+
+    const PASSWORD_HASH = "7c78eea7a591b0c8a4dad680372e35ca12e11cffdac5c69a39700c8014fbcc82";
+    const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Detroit",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
+
+    // Build a stable YYYY-MM-DD date in Detroit instead of using the browser timezone.
+    function todayKey() {
+      const parts = Object.fromEntries(dateFormatter.formatToParts(new Date()).map(part => [part.type, part.value]));
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
+
+    function parseDate(key) {
+      const [year, month, day] = key.split("-").map(Number);
+      return new Date(Date.UTC(year, month - 1, day));
+    }
+
+    function dateKey(date) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    function addDays(key, amount) {
+      const date = parseDate(key);
+      date.setUTCDate(date.getUTCDate() + amount);
+      return dateKey(date);
+    }
+
+    function dayDifference(fromKey, toKey) {
+      return Math.ceil((parseDate(toKey) - parseDate(fromKey)) / 86400000);
+    }
+
+    function calculateStreaks(today) {
+      const completed = Object.keys(DATA.streak).filter(key => DATA.streak[key]).sort();
+      let longest = 0;
+      let run = 0;
+      let previous = null;
+
+      completed.forEach(key => {
+        run = previous && addDays(previous, 1) === key ? run + 1 : 1;
+        longest = Math.max(longest, run);
+        previous = key;
+      });
+
+      let cursor = DATA.streak[today] ? today : addDays(today, -1);
+      let current = 0;
+      while (DATA.streak[cursor]) {
+        current += 1;
+        cursor = addDays(cursor, -1);
+      }
+      return { current, longest };
+    }
+
+    function createMonth(year, month, today) {
+      const monthName = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(year, month - 1, 1)));
+      const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `<div class="month-title eyebrow">${monthName}</div>`;
+      const grid = document.createElement("div");
+      grid.className = "calendar-grid";
+      ["S", "M", "T", "W", "T", "F", "S"].forEach(letter => {
+        const label = document.createElement("div");
+        label.className = "weekday";
+        label.textContent = letter;
+        grid.appendChild(label);
+      });
+
+      for (let blank = 0; blank < firstWeekday; blank += 1) {
+        const cell = document.createElement("div");
+        cell.className = "day blank";
+        grid.appendChild(cell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const key = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const cell = document.createElement("div");
+        const state = DATA.streak[key] ? "done" : key >= DATA.campaignStart && key < today ? "missed" : "future";
+        cell.className = `day ${state}`;
+        cell.title = `${key}: ${state}`;
+        cell.innerHTML = `<span>${day}</span>`;
+        grid.appendChild(cell);
+      }
+      wrapper.appendChild(grid);
+      return wrapper;
+    }
+
+    function countUp(element, target) {
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        element.textContent = target;
+        return;
+      }
+      const start = performance.now();
+      const duration = 700;
+      function frame(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        element.textContent = Math.round(target * (1 - Math.pow(1 - progress, 3)));
+        if (progress < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function renderApplications() {
+      const body = document.getElementById("applications-body");
+      if (!DATA.applications.length) {
+        body.innerHTML = `<tr><td class="placeholder" colspan="7">First applications ship the week of July 13.</td></tr>`;
+        return;
+      }
+      body.innerHTML = DATA.applications.map(item => `<tr>
+        <td class="num">${item.date}</td><td>${item.company}</td><td>${item.role}</td>
+        <td class="num">${item.salary}</td><td class="num">${item.fit}</td>
+        <td><span class="status ${item.status}">${item.status}</span></td><td>${item.resumeRef}</td>
+      </tr>`).join("");
+    }
+
+    function renderResumes() {
+      if (DATA.masterResumeHtml) {
+        document.getElementById("master-note").hidden = true;
+        document.getElementById("master-resume").innerHTML = DATA.masterResumeHtml;
+      }
+      document.getElementById("resume-variants").innerHTML = DATA.resumeVariants.map(item => `<article class="variant">
+        <h3>${item.company}</h3><div><p><em>${item.summaryOfChanges}</em></p>${item.html}</div>
+      </article>`).join("");
+    }
+
+    function renderBatch() {
+      document.getElementById("batch-body").innerHTML = DATA.batch.map(item => {
+        const status = (item.status || "awaiting review").toLowerCase();
+        const statusClass = {
+          "awaiting review": "awaiting",
+          staged: "staged",
+          applied: "applied",
+          response: "response",
+          interview: "interview",
+          offer: "offer",
+          passed: "declined",
+          declined: "declined"
+        }[status] || "awaiting";
+        return `<tr>
+        <td class="num">${item.rank}</td><td>${item.company}</td>
+        <td><a class="role-link" href="${item.applyUrl}" target="_blank" rel="noopener noreferrer">${item.role}</a></td>
+        <td>${item.location}</td><td class="num">${item.salary}</td><td class="num">${item.fit.toFixed(1)}</td>
+        <td><span class="status ${statusClass}">${status}</span></td>
+      </tr>`;
+      }).join("");
+    }
+
+    function renderLedger() {
+      const today = todayKey();
+      const streaks = calculateStreaks(today);
+      const remaining = Math.max(0, dayDifference(today, DATA.campaignEnd));
+      document.getElementById("mission").textContent = DATA.mission;
+      document.getElementById("months").append(createMonth(2026, 7, today), createMonth(2026, 8, today));
+      document.getElementById("longest-streak").textContent = `Longest streak: ${streaks.longest} ${streaks.longest === 1 ? "day" : "days"}`;
+      document.getElementById("pipeline").textContent = `Staged ${DATA.pipeline.staged} · Applied ${DATA.pipeline.applied} · Responses ${DATA.pipeline.responses} · Interviews ${DATA.pipeline.interviews} · Offers ${DATA.pipeline.offers}`;
+
+      const weekday = parseDate(today).getUTCDay();
+      const weekStart = addDays(today, -((weekday + 6) % 7));
+      const weekEnd = addDays(weekStart, 6);
+      const weekLabel = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(parseDate(weekStart));
+      const shipped = DATA.applications.filter(item => item.date >= weekStart && item.date <= weekEnd).length;
+      document.getElementById("week-progress").textContent = `Week of ${weekLabel}: ${shipped} of ${DATA.weeklyTarget} applications shipped`;
+      document.getElementById("progress-fill").style.width = `${Math.min(100, shipped / DATA.weeklyTarget * 100)}%`;
+      countUp(document.getElementById("current-streak"), streaks.current);
+      countUp(document.getElementById("applications-sent"), DATA.pipeline.applied);
+      countUp(document.getElementById("days-remaining"), remaining);
+      renderApplications();
+      renderResumes();
+      renderBatch();
+    }
+
+    // Keep the active nav underline aligned with the section in view.
+    function watchSections() {
+      const links = [...document.querySelectorAll("nav a")];
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          links.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`));
+        });
+      }, { rootMargin: "-20% 0px -68%", threshold: 0 });
+      document.querySelectorAll("main section").forEach(section => observer.observe(section));
+    }
+
+    async function sha256(value) {
+      const bytes = new TextEncoder().encode(value);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    function openLedger() {
+      document.getElementById("access-gate").hidden = true;
+      document.getElementById("ledger").hidden = false;
+      renderLedger();
+      watchSections();
+      requestAnimationFrame(() => document.body.classList.add("ready"));
+    }
+
+    const savedEdition = localStorage.getItem("application-ledger-edition") || "day";
+    document.documentElement.dataset.edition = savedEdition;
+    const editionToggle = document.getElementById("edition-toggle");
+    editionToggle.textContent = savedEdition === "night" ? "day edition" : "night edition";
+    editionToggle.addEventListener("click", () => {
+      const next = document.documentElement.dataset.edition === "night" ? "day" : "night";
+      document.documentElement.dataset.edition = next;
+      localStorage.setItem("application-ledger-edition", next);
+      editionToggle.textContent = next === "night" ? "day edition" : "night edition";
+    });
+
+    document.getElementById("gate-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const input = document.getElementById("password");
+      const error = document.getElementById("gate-error");
+      try {
+        if (await sha256(input.value) === PASSWORD_HASH) {
+          sessionStorage.setItem("application-ledger-access", "passed");
+          openLedger();
+        } else {
+          error.textContent = "That password does not open this edition.";
+          input.select();
+        }
+      } catch (problem) {
+        error.textContent = "Secure access requires Safari over localhost or HTTPS.";
+      }
+    });
+
+    if (sessionStorage.getItem("application-ledger-access") === "passed") openLedger();
+  </script>
+</body>
+</html>

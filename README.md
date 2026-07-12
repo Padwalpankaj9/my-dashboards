@@ -10,6 +10,7 @@ Bespoke personal dashboards. Static HTML + Vercel.
 | OpenClaw Architecture | VPS internals, network, skills, cron, secrets | [Open](https://my-dashboards-vert.vercel.app/openclaw.html) |
 | Mac Helicopter View | Full AI/CLI/MCP setup visibility snapshot | [Open](https://my-dashboards-vert.vercel.app/helicopter.html) |
 | AI Control Tower | System map + drill-down for projects/MCP/CLI/config/cron/secrets/git | [Open](https://my-dashboards-vert.vercel.app/control-tower.html) |
+| The Application Ledger | Job hunt tracker: streak, pipeline, resumes, applications | [Open](https://my-dashboards-vert.vercel.app/job-hunt.html) |
 
 ## Adding a New App
 
