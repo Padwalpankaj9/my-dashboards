@@ -313,7 +313,7 @@
     .status { font-style: italic; white-space: nowrap; }
     .status.staged, .status.applied, .status.awaiting { color: var(--pending); }
     .status.response, .status.interview, .status.offer { color: var(--good); }
-    .status.declined { color: var(--bad); }
+    .status.declined, .status.rejected { color: var(--bad); }
 
     .resume-block + .resume-block { margin-top: 56px; }
     .note { margin: 8px 0 22px; font-style: italic; }
@@ -531,13 +531,13 @@
       campaignEnd: "2026-08-31",
       weeklyTarget: 8,
       streak: { "2026-07-12": true, "2026-07-14": true, "2026-07-15": true, "2026-07-16": true, "2026-07-17": true, "2026-07-19": true, "2026-07-20": true },
-      pipeline: { staged: 24, applied: 14, responses: 0, interviews: 0, offers: 0 },
+      pipeline: { staged: 24, applied: 14, responses: 2, interviews: 0, offers: 0 },
       applications: [
         { date: "2026-07-16", company: "Eli Lilly", role: "Forward Deployment Lead, R&D Quality (R-108371)", salary: "$126,000–$204,600", fit: 9.0, status: "applied", resumeRef: "Lilly variant v1 (from master v1.2)" },
-        { date: "2026-07-16", company: "Tulip Interfaces", role: "Forward Deployed Engineer, MES Solutions (remote)", salary: "$125,000–$175,000", fit: 7.5, status: "applied", resumeRef: "Tulip FDE variant (from master v1.3)" },
+        { date: "2026-07-16", company: "Tulip Interfaces", role: "Forward Deployed Engineer, MES Solutions (remote)", salary: "$125,000–$175,000", fit: 7.5, status: "rejected", resumeRef: "Tulip FDE variant (from master v1.3)" },
         { date: "2026-07-16", company: "Vertex", role: "Principal Analyst, CGT Process Automation & AI (REQ-29152)", salary: "$142,800–$214,200 + bonus + equity", fit: 8.8, status: "applied", resumeRef: "Vertex CGT AI variant" },
         { date: "2026-07-16", company: "Vertex", role: "Principal Analyst, CGT Agentic Solutions (REQ-29200)", salary: "$142,800–$214,200 + bonus + equity", fit: 8.3, status: "applied", resumeRef: "Vertex CGT AI variant" },
-        { date: "2026-07-16", company: "Sanofi", role: "AI Enablement & Adoption Lead, Specialty Care (R2863768)", salary: "$161,250–$232,917", fit: 8.6, status: "applied", resumeRef: "Sanofi AI Enablement variant" },
+        { date: "2026-07-16", company: "Sanofi", role: "AI Enablement & Adoption Lead, Specialty Care (R2863768)", salary: "$161,250–$232,917", fit: 8.6, status: "rejected", resumeRef: "Sanofi AI Enablement variant" },
         { date: "2026-07-16", company: "GSK", role: "Smart Manufacturing Execution Lead (441392)", salary: "not posted", fit: 8.6, status: "applied", resumeRef: "GSK Smart Manufacturing variant" },
         { date: "2026-07-16", company: "AbbVie", role: "Principal Engineer, Quality – Automation & AI (R00144844)", salary: "$109,500–$208,500 + LTI", fit: 7.8, status: "applied", resumeRef: "AbbVie Quality AI variant" },
         { date: "2026-07-17", company: "Bristol Myers Squibb", role: "Manager, Manufacturing Optimization Analytics (R1601951, Devens-first)", salary: "$105,560–$127,916 + cash/stock", fit: 8.0, status: "applied", resumeRef: "BMS Mfg Analytics variant" },
