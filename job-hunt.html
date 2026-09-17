@@ -313,7 +313,7 @@
     .status { font-style: italic; white-space: nowrap; }
     .status.staged, .status.applied, .status.awaiting { color: var(--pending); }
     .status.response, .status.interview, .status.offer { color: var(--good); }
-    .status.declined, .status.rejected { color: var(--bad); }
+    .status.declined, .status.rejected, .status.cancelled, .status.filled { color: var(--bad); }
 
     .resume-block + .resume-block { margin-top: 56px; }
     .note { margin: 8px 0 22px; font-style: italic; }
@@ -501,7 +501,7 @@
         <div class="section-head"><h2>Resumes</h2><span class="section-number">03</span></div>
         <div class="resume-block">
           <h3>Master Resume</h3>
-          <p class="note" id="master-note">In drafting. Locks July 13.</p>
+          <p class="note" id="master-note">Version 2, rebuilt September 17, 2026. The full account lives at <code>~/Documents/Job-Applications/00-Master-Resume/07-Master-Resume.md</code>, with provenance and exclusions in its companion evidence file.</p>
           <article id="master-resume"></article>
         </div>
         <div class="resume-block">
@@ -531,7 +531,7 @@
       campaignEnd: "2026-08-31",
       weeklyTarget: 8,
       streak: { "2026-07-12": true, "2026-07-14": true, "2026-07-15": true, "2026-07-16": true, "2026-07-17": true, "2026-07-19": true, "2026-07-20": true },
-      pipeline: { staged: 24, applied: 21, responses: 11, interviews: 0, offers: 0 },
+      pipeline: { staged: 24, applied: 25, responses: 16, interviews: 0, offers: 0 },
       applications: [
         { date: "2026-07-16", company: "Eli Lilly", role: "Forward Deployment Lead, R&D Quality (R-108371)", salary: "$126,000–$204,600", fit: 9.0, status: "rejected", resumeRef: "Lilly variant v1 (from master v1.2) — rejected Jul 23" },
         { date: "2026-07-16", company: "Tulip Interfaces", role: "Forward Deployed Engineer, MES Solutions (remote)", salary: "$125,000–$175,000", fit: 7.5, status: "rejected", resumeRef: "Tulip FDE variant (from master v1.3)" },
@@ -539,24 +539,32 @@
         { date: "2026-07-16", company: "Vertex", role: "Principal Analyst, CGT Agentic Solutions (REQ-29200)", salary: "$142,800–$214,200 + bonus + equity", fit: 8.3, status: "rejected", resumeRef: "Vertex CGT AI variant" },
         { date: "2026-07-16", company: "Sanofi", role: "AI Enablement & Adoption Lead, Specialty Care (R2863768)", salary: "$161,250–$232,917", fit: 8.6, status: "rejected", resumeRef: "Sanofi AI Enablement variant" },
         { date: "2026-07-16", company: "GSK", role: "Smart Manufacturing Execution Lead (441392)", salary: "not posted", fit: 8.6, status: "applied", resumeRef: "GSK Smart Manufacturing variant" },
-        { date: "2026-07-16", company: "AbbVie", role: "Principal Engineer, Quality – Automation & AI (R00144844)", salary: "$109,500–$208,500 + LTI", fit: 7.8, status: "applied", resumeRef: "AbbVie Quality AI variant" },
-        { date: "2026-07-17", company: "Bristol Myers Squibb", role: "Manager, Manufacturing Optimization Analytics (R1601951, Devens-first)", salary: "$105,560–$127,916 + cash/stock", fit: 8.0, status: "applied", resumeRef: "BMS Mfg Analytics variant" },
+        { date: "2026-07-16", company: "AbbVie", role: "Principal Engineer, Quality – Automation & AI (R00144844)", salary: "$109,500–$208,500 + LTI", fit: 7.8, status: "cancelled", resumeRef: "AbbVie Quality AI variant — position cancelled Aug 12" },
+        { date: "2026-07-17", company: "Bristol Myers Squibb", role: "Manager, Manufacturing Optimization Analytics (R1601951, Devens-first)", salary: "$105,560–$127,916 + cash/stock", fit: 8.0, status: "filled", resumeRef: "BMS Mfg Analytics variant — position filled Sep 14" },
         { date: "2026-07-17", company: "Palantir", role: "Deployment Strategist (Lever receipt Jul 17; not on prior ledger)", salary: "not posted", fit: 7.5, status: "rejected", resumeRef: "Palantir Deployment Strategist — rejected Jul 23" },
         { date: "2026-07-19", company: "QXO", role: "Senior AI Engineer (10160, Seattle — sponsor verified via LCA data)", salary: "$150,000–$220,000 + bonus + equity", fit: 6.5, status: "applied", resumeRef: "QXO AI Engineer variant" },
         { date: "2026-07-20", company: "GE Vernova", role: "AI Workforce Transformation & Org Design PM (R5047444, remote US)", salary: "$141,900–$236,600", fit: 8.2, status: "rejected", resumeRef: "GE Vernova AI Transformation variant — rejected Jul 30" },
         { date: "2026-07-20", company: "Intuit", role: "Staff, AI & Technology Enablement Manager (22666, Frisco TX)", salary: "$166,000–$195,700", fit: 8.8, status: "applied", resumeRef: "Intuit AI Enablement variant" },
         { date: "2026-07-20", company: "Chewy", role: "Associate Director, Product Management (R29771)", salary: "$166,000–$265,000", fit: 8.5, status: "rejected", resumeRef: "Chewy Product AI variant" },
         { date: "2026-07-20", company: "Chewy", role: "Merchandising Operations Program Manager (R30255, Boston)", salary: "$95,500–$152,500", fit: 7.5, status: "rejected", resumeRef: "Chewy Product AI variant" },
-        { date: "2026-07-20", company: "Capital One", role: "Principal Associate, Data Scientist, Global Payments (R245175, Chicago — sponsorship promised on posting)", salary: "$147,100–$167,900", fit: 8.3, status: "applied", resumeRef: "Capital One Payments DS variant" },
+        { date: "2026-07-20", company: "Capital One", role: "Principal Associate, Data Scientist, Global Payments (R245175, Chicago — sponsorship promised on posting)", salary: "$147,100–$167,900", fit: 8.3, status: "rejected", resumeRef: "Capital One Payments DS variant — rejected Sep 3" },
         { date: "2026-07-20", company: "Walmart", role: "Senior Manager, Advanced Analytics (R-2470993, Bentonville AR)", salary: "up to $180,000", fit: 8.0, status: "rejected", resumeRef: "Walmart Advanced Analytics variant" },
         { date: "2026-07-20", company: "UiPath", role: "Sales Engineer, Retail & Manufacturing (remote — receipt found in Gmail scan Jul 22)", salary: "$150,000 base ask", fit: 7.8, status: "rejected", resumeRef: "UiPath Sales Engineer variant" },
         { date: "2026-07-20", company: "RXO", role: "Forward Deployed Engineer (JR104088, Southfield MI — 30 min from home)", salary: "not posted (~$137,000 LCA average)", fit: 7.8, status: "applied", resumeRef: "RXO FDE variant" },
-        { date: "2026-07-20", company: "JPMorganChase", role: "Associate, AI Solutions & Business Enablement (210765215, NYC)", salary: "not posted", fit: 8.4, status: "applied", resumeRef: "JPMC AI Enablement variant" },
+        { date: "2026-07-20", company: "JPMorganChase", role: "Associate, AI Solutions & Business Enablement (210765215, NYC)", salary: "not posted", fit: 8.4, status: "rejected", resumeRef: "JPMC AI Enablement variant — rejected Sep 1" },
         { date: "2026-07-20", company: "AHEAD", role: "Forward Deployed Engineer (remote)", salary: "$160,000–$190,000 OTE", fit: 8.0, status: "applied", resumeRef: "AHEAD FDE variant" },
-        { date: "2026-07-20", company: "Sierra", role: "Strategist, Agent Development – Healthcare (ebe951fb, NYC preference — sponsor verified: certified Agent Strategist LCAs)", salary: "$150,000–$300,000 + equity", fit: 9.2, status: "rejected", resumeRef: "Sierra Agent Strategist variant (wave 3, two-pass) — rejected Jul 22" }
+        { date: "2026-07-20", company: "Sierra", role: "Strategist, Agent Development – Healthcare (ebe951fb, NYC preference — sponsor verified: certified Agent Strategist LCAs)", salary: "$150,000–$300,000 + equity", fit: 9.2, status: "rejected", resumeRef: "Sierra Agent Strategist variant (wave 3, two-pass) — rejected Jul 22" },
+        { date: "2026-09-13", company: "Eli Lilly", role: "Associate Director, Operational Excellence (R-108923)", salary: "$115,500–$169,400", fit: 9.0, status: "applied", resumeRef: "Lilly OE variant — awaiting response" },
+        { date: "2026-09-13", company: "Eli Lilly", role: "Digital Adoption & Change Communications Lead", salary: "not recorded", fit: 7.0, status: "rejected", resumeRef: "Lilly DAC variant — rejected Sep 17 (~4 days)" },
+        { date: "2026-09-17", company: "Eli Lilly", role: "Manufacturing Operations Associate, Lebanon Advanced Therapies (R-111821)", salary: "$66,000–$145,200", fit: 7.5, status: "applied", resumeRef: "Lilly LP-2 variant — awaiting response" },
+        { date: "2026-09-17", company: "Eli Lilly", role: "Agentic AI Solutions, Associate Director (R-111718)", salary: "$118,500–$173,800", fit: 8.5, status: "applied", resumeRef: "Lilly ESCO agentic-AI variant — awaiting response" }
       ],
       masterResumeHtml: null,
-      resumeVariants: [],
+      resumeVariants: [
+        { company: "Lilly — Agentic AI Solutions, Associate Director (R-111718)", summaryOfChanges: "ESCO agentic-AI builder role. Led with document intelligence, evaluation design, and guardrails; added the LangGraph prototype and the cloud/retrieval depth the posting asks for.", html: "<p>Two-page Times LaTeX PDF. JD, variant, and rendered output: <code>~/Documents/Job-Applications/Lilly_R-111718_Associate_Director_Agentic_AI_Solutions/</code></p>" },
+        { company: "Lilly — Manufacturing Operations Associate, LP-2 (R-111821)", summaryOfChanges: "Hands-on API manufacturing role. Led with cGMP campaign execution, technical transfer, investigations, and capacity work; trimmed the AI emphasis.", html: "<p>JD, variant, and rendered output: <code>~/Documents/Job-Applications/Lilly_R-111821_Manufacturing_Operations_Associate_LP2/</code></p>" },
+        { company: "Lilly — Associate Director, Operational Excellence (R-108923)", summaryOfChanges: "OE leadership role. Led with DMS ownership, the savings portfolio, KPI infrastructure, and value-stream visibility.", html: "<p>JD, variant, and rendered output: <code>~/Documents/Job-Applications/Lilly_R-108923_Associate_Director_Operational_Excellence/</code></p>" }
+      ],
       batch: [
         { rank: 1, company: "Bristol Myers Squibb", role: "Scientist, Manufacturing Technology", location: "Devens, MA", salary: "$114,290–$138,494", fit: 9.5, applyUrl: "https://bristolmyerssquibb.wd5.myworkdayjobs.com/BMS/job/Devens---MA---US/Scientist--Manufacturing-Technology_R1603924" },
         { rank: 2, company: "Sanofi", role: "Statistical Data Scientist – Injectables & Tech Transfer", location: "Swiftwater, PA", salary: "$90,000–$130,000", fit: 9.0, applyUrl: "https://sanofi.wd3.myworkdayjobs.com/SanofiCareers/job/Swiftwater-PA/Statistical-Data-Scientist---Injectables-and-Tech-Transfer_R2862927" },
@@ -725,7 +733,7 @@
       const streaks = calculateStreaks(today);
       const remaining = Math.max(0, dayDifference(today, DATA.campaignEnd));
       document.getElementById("mission").textContent = DATA.mission;
-      document.getElementById("months").append(createMonth(2026, 7, today), createMonth(2026, 8, today));
+      document.getElementById("months").append(createMonth(2026, 7, today), createMonth(2026, 8, today), createMonth(2026, 9, today));
       document.getElementById("longest-streak").textContent = `Longest streak: ${streaks.longest} ${streaks.longest === 1 ? "day" : "days"}`;
       document.getElementById("pipeline").textContent = `Staged ${DATA.pipeline.staged} · Applied ${DATA.pipeline.applied} · Responses ${DATA.pipeline.responses} · Interviews ${DATA.pipeline.interviews} · Offers ${DATA.pipeline.offers}`;
 
